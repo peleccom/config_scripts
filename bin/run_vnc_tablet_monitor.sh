@@ -1,0 +1,18 @@
+#!/bin/bash
+#https://mihanentalpo.me/2017/07/%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BB%D0%B0%D0%BD%D1%88%D0%B5%D1%82%D0%B0-%D0%B2-%D0%BA%D0%B0%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%B5-%D0%B4%D0%BE/
+VNC_PORT=25900
+TABLET_W=1024
+TABLET_H=552
+TABLET_FREQUENCY=60
+TABLET_DISPLAY=VGA-1-1
+DESKTOP_W=1920
+DESKTOP_DISPLAY=eDP-1-1
+set -u
+set -x
+set -v
+
+gtf "$TABLET_W" "$TABLET_H" "$TABLET_FREQUENCY"|grep "Modeline"|cut -d' ' -f4-|xargs xrandr --newmode
+xrandr --addmode $TABLET_DISPLAY "${TABLET_W}x${TABLET_H}_${TABLET_FREQUENCY}.00"
+xrandr --output $TABLET_DISPLAY --mode "${TABLET_W}x${TABLET_H}_${TABLET_FREQUENCY}.00" --right-of $DESKTOP_DISPLAY
+
+x11vnc -rfbport "$VNC_PORT" -clip "$TABLET_W"x"$TABLET_H"+"$DESKTOP_W"+0 -forever
