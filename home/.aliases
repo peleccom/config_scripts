@@ -1,0 +1,5 @@
+alias gti='git'
+alias gitc='git commit'
+alias gita='git add -A .'
+alias gits='git status'
+alias mkvirtualenv3='mkvirtualenv --python=`which python3`'
