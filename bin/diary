@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [[ $1 = "-h" ]]
+then
+    HIDE=1
+fi
+
+if [[ $HIDE ]]
+then
+    stty -echo
+fi
+
+DIARY="$HOME/Dropbox/$(basename $0).org"
+echo "* $(LC_ALL=C date -R)" >> "$DIARY"
+cat >> "$DIARY"
+stty echo
+echo >> "$DIARY"
+
