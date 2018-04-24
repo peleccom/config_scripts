@@ -13,4 +13,4 @@
 .nfs*
 
 #Swap file
-*.swap
+*.sw[a]p
