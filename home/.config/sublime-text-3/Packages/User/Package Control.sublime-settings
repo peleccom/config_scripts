@@ -13,9 +13,9 @@
 		"MarkdownPreview",
 		"Package Control",
 		"SublimeLinter",
+		"SublimeLinter-eslint",
 		"SublimeLinter-jshint",
 		"SublimeLinter-json",
-		"SublimeLinter-pep8",
 		"SublimeLinter-pyflakes",
 		"Terminal"
 	]
