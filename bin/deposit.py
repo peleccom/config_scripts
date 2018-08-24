@@ -17,16 +17,20 @@ CEND = '\033[0m'
 class Deposit(object):
     def __init__(
             self, start_date: date, amount: Money,
-            percent: float, duration_months: int
+            percent: float, duration_months: int,
+            last_month_amount: Money,
     ):
         self._start_date = start_date
         self._start_amount = amount
         self._percent = percent
         self._duration_months = duration_months
+        self.last_month_amount = last_month_amount
 
     def calc(self):
         start_amount = self._start_amount
         for i in range(self._duration_months):
+            if i == self._duration_months - 1:
+                start_amount += self.last_month_amount
             deposit_date = self._start_date + relativedelta(months=i)
 
             days_in_month = calendar.monthrange(deposit_date.year, deposit_date.month)[1]
@@ -57,6 +61,7 @@ class Deposit(object):
                                                                          amount_final=amount_final,
                                                                          ))
             start_amount = amount_final
+        self.amount_final = start_amount
         return_date = self._start_date + relativedelta(months=self._duration_months)
         self.end_date = return_date
         print('end date {}'.format(self.end_date))
@@ -79,12 +84,14 @@ def main():
 
     d = start_date
     duration = 3
+    last_month_amount = Money(12000, Currency.USD)
 
     deposits = []
 
     for i in range(12):
         print('Дата начала вклада {}. Длительность {} мес.'.format(d, duration))
-        deposit = Deposit(d, Money(100, Currency.USD), percents_map[duration], duration)
+        deposit = Deposit(d, Money(100, Currency.USD), percents_map[duration], duration,
+                          last_month_amount)
         deposit.calc()
         print('День возврата {}'.format(deposit.return_date))
         print('День доступности средств {}'.format(deposit.money_available_date))
@@ -103,6 +110,7 @@ def main():
             duration = 3
 
         deposits.append(deposit)
+        last_month_amount = deposit.amount_final
 
     deposits.sort(key=lambda d: d._start_date)
 
