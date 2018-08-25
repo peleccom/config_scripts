@@ -1,11 +1,16 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 
 import calendar
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
+from pathlib import Path
+
+import arrow
 
 from dateutil.relativedelta import relativedelta
+
+from ics import Calendar, Event
 
 from money.money import Money
 from money.currency import Currency
@@ -20,18 +25,18 @@ class Deposit(object):
             percent: float, duration_months: int,
             last_month_amount: Money,
     ):
-        self._start_date = start_date
-        self._start_amount = amount
-        self._percent = percent
-        self._duration_months = duration_months
+        self.start_date = start_date
+        self.start_amount = amount
+        self.percent = percent
+        self.duration_months = duration_months
         self.last_month_amount = last_month_amount
 
     def calc(self):
-        start_amount = self._start_amount
-        for i in range(self._duration_months):
-            if i == self._duration_months - 1:
+        start_amount = self.start_amount
+        for i in range(self.duration_months):
+            if i == self.duration_months - 1:
                 start_amount += self.last_month_amount
-            deposit_date = self._start_date + relativedelta(months=i)
+            deposit_date = self.start_date + relativedelta(months=i)
 
             days_in_month = calendar.monthrange(deposit_date.year, deposit_date.month)[1]
             days_in_year = 366 if calendar.isleap(deposit_date.year) else 365
@@ -39,7 +44,7 @@ class Deposit(object):
             print('Calculation date {}:'.format(deposit_date))
             amount = (
                     start_amount +
-                    (start_amount * self._percent * days_in_month) / (days_in_year * 100)
+                    (start_amount * self.percent * days_in_month) / (days_in_year * 100)
             )
             print(
                 '{relative_month}-я капитализация: {start_amount} + ({start_amount} * {percent}'
@@ -49,7 +54,7 @@ class Deposit(object):
                         relative_month=i + 1,
                         start_amount=start_amount,
                         days_in_month=days_in_month,
-                        percent=self._percent,
+                        percent=self.percent,
                         amount=amount,
                         days_in_year=days_in_year,
                     )
@@ -61,9 +66,12 @@ class Deposit(object):
                                                                          amount_final=amount_final,
                                                                          ))
             start_amount = amount_final
+
         self.amount_final = start_amount
-        return_date = self._start_date + relativedelta(months=self._duration_months)
+        return_date = self.start_date + relativedelta(months=self.duration_months)
         self.end_date = return_date
+        self.last_replenishment_date = self.end_date - relativedelta(months=1, days=1)
+
         print('end date {}'.format(self.end_date))
         while return_date.isoweekday() in [6, 7]:
             print('{} is weekend. Move forward..'.format(return_date))
@@ -112,13 +120,37 @@ def main():
         deposits.append(deposit)
         last_month_amount = deposit.amount_final
 
-    deposits.sort(key=lambda d: d._start_date)
+    deposits.sort(key=lambda d: d.start_date)
+
+    c = Calendar()
 
     print(CRED + '\n\nДаты открытия депозитов' + CEND)
     for deposit in deposits:
-        print('Открытие {} срок {} мес. Закрытие {}'.format(deposit._start_date,
-                                                            deposit._duration_months,
+        print('Открытие {} срок {} мес. Закрытие {}'.format(deposit.start_date,
+                                                            deposit.duration_months,
                                                             deposit.end_date))
+        e = Event()
+        e.name = 'Вклад {} мес. Открытие'.format(deposit.duration_months)
+        e.begin = arrow.get(datetime.combine(deposit.start_date, datetime.min.time()))
+        e.make_all_day()
+        c.events.add(e)
+
+        e = Event()
+        e.name = 'Вклад {} мес. Пополнение'.format(deposit.duration_months)
+        e.begin = arrow.get(datetime.combine(deposit.last_replenishment_date,
+                                             datetime.min.time()))
+        e.make_all_day()
+        c.events.add(e)
+
+        e = Event()
+        e.name = 'Вклад {} мес. Закрытие'.format(deposit.duration_months)
+        e.begin = arrow.get(datetime.combine(deposit.end_date, datetime.min.time()))
+        e.make_all_day()
+        c.events.add(e)
+
+    calendar_filename = str(Path.home() / 'deposit.ics')
+    with open(calendar_filename, 'w') as my_file:
+        my_file.writelines(c)
 
 
 if __name__ == '__main__':
