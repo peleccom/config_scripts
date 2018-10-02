@@ -14,3 +14,5 @@
 
 #Swap file
 *.sw[a]p
+
+__pycache__
