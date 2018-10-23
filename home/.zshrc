@@ -76,6 +76,8 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
