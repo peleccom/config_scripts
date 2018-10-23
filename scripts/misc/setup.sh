@@ -7,6 +7,10 @@ ln -sf  `readlink -f ../../home/.aliases` ~/
 # tmux
 ln -sf  `readlink -f ../../home/.tmux.conf` ~/
 
+#zsh
+
+ln -sf  `readlink -f ../../home/.zshrc` ~/
+
 #sublime text3
 mkdir -p ~/.config/sublime-text-3/Packages/
 rm -rf ~/.config/sublime-text-3/Packages/User
