@@ -8,7 +8,7 @@ ln -sf  `readlink -f ../../home/.aliases` ~/
 ln -sf  `readlink -f ../../home/.tmux.conf` ~/
 
 #zsh
-
+git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
 ln -sf  `readlink -f ../../home/.zshrc` ~/
 
 #sublime text3
