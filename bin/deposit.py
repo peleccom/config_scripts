@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import calendar
+import enum
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -18,6 +19,11 @@ from money.currency import Currency
 CRED = '\033[91m'
 CEND = '\033[0m'
 
+
+class EEventCategories(enum.Enum):
+  open = 'open'
+  close = 'close'
+  add = 'add'
 
 class Deposit(object):
     def __init__(
@@ -130,22 +136,25 @@ def main():
                                                             deposit.duration_months,
                                                             deposit.return_date))
         e = Event()
-        e.name = 'Вклад {} мес. Открытие'.format(deposit.duration_months)
+        e.name = '+ Вклад {} мес. Открытие'.format(deposit.duration_months)
         e.begin = arrow.get(datetime.combine(deposit.start_date, datetime.min.time()))
         e.make_all_day()
+        e.categories = [EEventCategories.open.value]
         c.events.add(e)
 
         e = Event()
-        e.name = 'Вклад {} мес. Пополнение'.format(deposit.duration_months)
+        e.name = '-> Вклад {} мес. Пополнение'.format(deposit.duration_months)
         e.begin = arrow.get(datetime.combine(deposit.last_replenishment_date,
                                              datetime.min.time()))
         e.make_all_day()
+        e.categories = [EEventCategories.add.value]
         c.events.add(e)
 
         e = Event()
-        e.name = 'Вклад {} мес. Закрытие'.format(deposit.duration_months)
+        e.name = 'x Вклад {} мес. Закрытие'.format(deposit.duration_months)
         e.begin = arrow.get(datetime.combine(deposit.return_date, datetime.min.time()))
         e.make_all_day()
+        e.categories = [EEventCategories.close.value]
         c.events.add(e)
 
     calendar_filename = str(Path.home() / 'deposit.ics')
