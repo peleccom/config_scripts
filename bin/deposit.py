@@ -96,7 +96,7 @@ def main():
 
     deposits = []
 
-    for i in range(12):
+    for i in range(24):
         print('Дата начала вклада {}. Длительность {} мес.'.format(d, duration))
         deposit = Deposit(d, Money(100, Currency.USD), percents_map[duration], duration,
                           last_month_amount)
@@ -128,7 +128,7 @@ def main():
     for deposit in deposits:
         print('Открытие {} срок {} мес. Закрытие {}'.format(deposit.start_date,
                                                             deposit.duration_months,
-                                                            deposit.end_date))
+                                                            deposit.return_date))
         e = Event()
         e.name = 'Вклад {} мес. Открытие'.format(deposit.duration_months)
         e.begin = arrow.get(datetime.combine(deposit.start_date, datetime.min.time()))
@@ -144,7 +144,7 @@ def main():
 
         e = Event()
         e.name = 'Вклад {} мес. Закрытие'.format(deposit.duration_months)
-        e.begin = arrow.get(datetime.combine(deposit.end_date, datetime.min.time()))
+        e.begin = arrow.get(datetime.combine(deposit.return_date, datetime.min.time()))
         e.make_all_day()
         c.events.add(e)
 
