@@ -71,6 +71,9 @@ plugins=(
   sudo
   virtualenvwrapper
   zsh-autosuggestions
+  jira
+  ng
+  django
 )
 
 source $ZSH/oh-my-zsh.sh
