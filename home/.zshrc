@@ -74,6 +74,9 @@ plugins=(
   jira
   ng
   django
+  copyfile
+  pip
+  npm
 )
 
 source $ZSH/oh-my-zsh.sh
