@@ -3,7 +3,11 @@ alias gitc='git commit'
 alias gita='git add -A .'
 alias gits='git status'
 alias gitp='git push'
+alias gitl='git pull'
+alias gitlr='git pull --rebase'
 alias gitco='git checkout'
+alias gitd='git diff'
+alias gitdca='git diff --cached'
 alias mkvirtualenv3='mkvirtualenv --python=`which python3`'
 alias ipy="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 alias mktmpenv3="mktmpenv -p python3 && pip install ipython jupyter ipdb"

@@ -107,3 +107,4 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+source $HOME/.aliases
