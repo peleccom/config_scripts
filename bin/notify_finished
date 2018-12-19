@@ -1,2 +1,3 @@
 #!/bin/sh
-notify-send "Command was finished"
+notify-send "Command was finished" && \
+paplay /usr/share/sounds/freedesktop/stereo/bell.oga
