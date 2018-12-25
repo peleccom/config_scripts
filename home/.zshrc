@@ -104,6 +104,21 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 # ssh
 # export SSH_KEY_PATH="~/.ssh/rsa_id"
 
+
+function preexec() {
+    timer=${timer:-$SECONDS}
+}
+
+function precmd() {
+    if [ $timer ]; then
+        timer_show=$(($SECONDS - $timer))
+        timer_show=$(printf '%.*f\n' 3 $timer_show)
+        export RPROMPT="[%?] : ${timer_show}s"
+        unset timer
+    fi
+}
+
+
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
