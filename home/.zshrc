@@ -110,10 +110,13 @@ function preexec() {
 }
 
 function precmd() {
+    export RPROMPT=""
     if [ $timer ]; then
         timer_show=$(($SECONDS - $timer))
-        timer_show=$(printf '%.*f\n' 3 $timer_show)
-        export RPROMPT="[%?] : ${timer_show}s"
+        if [ $timer_show -gt 3 ]; then
+            timer_show=$(printf '%.*f\n' 3 $timer_show)
+            export RPROMPT="[%?] : ${timer_show}s"
+        fi
         unset timer
     fi
 }
