@@ -9,7 +9,8 @@ alias gitlr='git pull --rebase'
 alias gitco='git checkout'
 alias gitd='git diff'
 alias gitdca='git diff --cached'
-alias git_sp='git add -A . && git commit -m "save point" && git push'
+alias git_sp='git add -A . && git commit -m "save point" && git push' # save progress
+alias git_spi='git add -A . && git commit && git push' # save progress interactive mode
 alias mkvirtualenv3='mkvirtualenv --python=`which python3`'
 alias ipy="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 alias mktmpenv3="mktmpenv -p python3 && pip install ipython jupyter ipdb"
