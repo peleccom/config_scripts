@@ -82,7 +82,7 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=green'
 
 # User configuration
 
