@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -133,8 +133,15 @@ function precmd() {
 
 source $HOME/.aliases
 
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/config_scripts/bin" ] ; then
+    PATH="$HOME/config_scripts/bin:$PATH"
+fi
+
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc' ]; then source '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc'; fi
+
+
