@@ -110,15 +110,24 @@ function preexec() {
 }
 
 function precmd() {
+    retVal=$?
+
     export RPROMPT=""
     if [ $timer ]; then
         timer_show=$(($SECONDS - $timer))
         if [ $timer_show -gt 3 ]; then
             timer_show=$(printf '%.*f\n' 3 $timer_show)
-            export RPROMPT="[%?] : ${timer_show}s"
+            status_code_show="" 
+	    if [ $retVal -ne 0 ]; then
+                status_code_show="[$retVal] : "
+	    fi
+            export RPROMPT="$status_code_show${timer_show}s"
+            unset status_code_show
+            unset timer_show
         fi
         unset timer
     fi
+    unset retVal
 }
 
 
