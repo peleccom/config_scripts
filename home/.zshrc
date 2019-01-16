@@ -67,6 +67,7 @@ DEFAULT_USER=$(whoami)
 plugins=(
   git
   docker
+  docker-compose
   python
   sudo
   virtualenvwrapper
