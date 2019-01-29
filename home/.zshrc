@@ -149,9 +149,12 @@ if [ -d "$HOME/config_scripts/bin" ] ; then
 fi
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc' ]; then source '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '$HOME/apps/google-cloud-sdk/path.zsh.inc' ]; then source '$HOME/apps/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f '$HOME/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/apps/google-cloud-sdk/completion.zsh.inc'; fi
+
+# The next line enables Android SDK
+if [ -d '$HOME/Android/Sdk' ]; then PATH="$HOME/Android/Sdk:$PATH"; fi
 
 
