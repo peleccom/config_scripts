@@ -155,6 +155,6 @@ if [ -f '$HOME/apps/google-cloud-sdk/path.zsh.inc' ]; then source '$HOME/apps/go
 if [ -f '$HOME/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/apps/google-cloud-sdk/completion.zsh.inc'; fi
 
 # The next line enables Android SDK
-if [ -d '$HOME/Android/Sdk' ]; then PATH="$HOME/Android/Sdk:$PATH"; fi
+if [ -d "$HOME/Android/Sdk/platform-tools" ]; then PATH="$HOME/Android/Sdk/platform-tools:$PATH"; fi
 
 
