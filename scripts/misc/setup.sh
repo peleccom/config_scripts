@@ -9,7 +9,11 @@ ln -sf  `readlink -f ../../home/.tmux.conf` ~/
 
 #zsh
 sudo apt-get install fonts-powerline
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+cd ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git pull
+cd ~
+
 ln -sf  `readlink -f ../../home/.zshrc` ~/
 
 #sublime text3
