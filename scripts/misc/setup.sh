@@ -12,7 +12,7 @@ sudo apt-get install fonts-powerline
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 cd ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git pull
-cd ~
+cd -
 
 ln -sf  `readlink -f ../../home/.zshrc` ~/
 
@@ -20,3 +20,9 @@ ln -sf  `readlink -f ../../home/.zshrc` ~/
 mkdir -p ~/.config/sublime-text-3/Packages/
 rm -rf ~/.config/sublime-text-3/Packages/User
 ln -sf `readlink -f ../../home/.config/sublime-text-3/Packages/User/` ~/.config/sublime-text-3/Packages/
+
+#vscode
+mkdir -p ~/.config/Code/User
+rm -rf ~/.config/Code/User/settings.json
+ln -sf `readlink -f ../../home/.config/Code/User/settings.json` ~/.config/Code/User/
+
