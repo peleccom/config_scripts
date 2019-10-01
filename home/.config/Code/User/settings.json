@@ -1,0 +1,33 @@
+{
+    "diffEditor.ignoreTrimWhitespace": false,
+    "mjml.beautify": {
+        "indent_size": 2,
+        "wrap_attributes_indent_size": 2,
+        "wrap-attributes": "force",
+        "wrap_line_length": 99
+    },
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "workbench.colorTheme": "One Dark Pro",
+    "workbench.iconTheme": "vscode-icons",
+    "editor.fontLigatures": true,
+    "prettier.arrowParens": "always",
+    "prettier.endOfLine": "lf",
+    "prettier.jsxBracketSameLine": true,
+    "prettier.jsxSingleQuote": true,
+    "prettier.printWidth": 100,
+    "prettier.singleQuote": true,
+    "prettier.trailingComma": "all",
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.rulers": [
+        80,
+        100,
+        120
+    ],
+    "sync.gist": "de292da407b271ba06ce25a6486e592e"
+}
