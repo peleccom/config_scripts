@@ -29,5 +29,6 @@
         100,
         120
     ],
-    "sync.gist": "de292da407b271ba06ce25a6486e592e"
+    "sync.gist": "de292da407b271ba06ce25a6486e592e",
+    "terminal.integrated.fontFamily": "Menlo for Powerline"
 }
