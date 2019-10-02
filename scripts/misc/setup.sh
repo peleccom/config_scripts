@@ -25,7 +25,7 @@ ln -sf `readlink -f ../../home/.config/sublime-text-3/Packages/User/` ~/.config/
 mkdir -p ~/.config/Code/User
 rm -rf ~/.config/Code/User/settings.json
 ln -sf `readlink -f ../../home/.config/Code/User/settings.json` ~/.config/Code/User/
-wget https://github.com/abertsch/Menlo-for-Powerline/raw/master/Menlo%20for%20Powerline.ttf -P ~/.fonts
+wget https://github.com/abertsch/Menlo-for-Powerline/raw/master/Menlo%20for%20Powerline.ttf -O "$HOME/.fonts/Menlo for Powerline.ttf"
 
 #update font cache
 fc-cache -vf ~/.fonts
