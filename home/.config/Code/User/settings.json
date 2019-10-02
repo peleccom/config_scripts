@@ -10,6 +10,11 @@
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     "workbench.colorTheme": "One Dark Pro",
     "workbench.iconTheme": "vscode-icons",
+	// Overrides colors from the currently selected color theme.
+	"workbench.colorCustomizations": {
+        "tab.activeBorder": "#ff0000",
+        "tab.unfocusedActiveBorder": "#000000"
+    },    
     "editor.fontLigatures": true,
     "prettier.arrowParens": "always",
     "prettier.endOfLine": "lf",
@@ -30,5 +35,6 @@
         120
     ],
     "sync.gist": "de292da407b271ba06ce25a6486e592e",
-    "terminal.integrated.fontFamily": "Menlo for Powerline"
+    "terminal.integrated.fontFamily": "Menlo for Powerline",
+    "files.autoSave": "onFocusChange"
 }
