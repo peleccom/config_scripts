@@ -1,11 +1,14 @@
 #!/bin/sh
 
+# Make user fonts
+mkdir -p "$HOME/.fonts"
 
 #bash aliases
 ln -sf  `readlink -f ../../home/.aliases` ~/
 
 # tmux
 ln -sf  `readlink -f ../../home/.tmux.conf` ~/
+
 
 #zsh
 sudo apt-get install fonts-powerline
