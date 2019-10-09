@@ -1,10 +1,15 @@
 {
 	"color_scheme": "Packages/User/SublimeLinter/Monokai (SL).tmTheme",
+	"folder_exclude_patterns":
+	[
+		"node_modules",
+		"build",
+		".git"
+	],
 	"font_size": 12,
 	"ignored_packages":
 	[
 		"Vintage"
 	],
-	"translate_tabs_to_spaces": true,
-	"folder_exclude_patterns": ["node_modules", "build"]
+	"translate_tabs_to_spaces": true
 }
