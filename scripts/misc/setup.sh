@@ -11,7 +11,7 @@ ln -sf  `readlink -f ../../home/.tmux.conf` ~/
 
 
 #zsh
-sudo apt-get install fonts-powerline
+sudo apt-get install fonts-powerline autojump
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 cd ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git pull

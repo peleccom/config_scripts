@@ -81,6 +81,7 @@ plugins=(
   npm
   command-not-found
   tmux
+  autojump
 )
 
 source $ZSH/oh-my-zsh.sh
