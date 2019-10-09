@@ -159,10 +159,15 @@ if [ -f '$HOME/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/a
 # The next line enables Android SDK
 if [ -d "$HOME/Android/Sdk" ]; then
 ANDROID_HOME=$HOME/Android/Sdk
-PATH=$PATH:$ANDROID_HOME/emulator
+ANDROID_SDK_ROOT=$ANDROID_HOME
+#PATH=$PATH:$ANDROID_HOME/emulator
 PATH=$PATH:$ANDROID_HOME/tools
-PATH=$PATH:$ANDROID_HOME/tools/bin
+#PATH=$PATH:$ANDROID_HOME/tools/bin
 PATH=$PATH:$ANDROID_HOME/platform-tools
 fi
 
 
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/alex/.sdkman"
+[[ -s "/home/alex/.sdkman/bin/sdkman-init.sh" ]] && source "/home/alex/.sdkman/bin/sdkman-init.sh"
