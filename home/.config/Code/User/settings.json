@@ -39,5 +39,11 @@
     "files.autoSave": "onFocusChange",
     "files.associations": {
         "*.html": "html"
-    }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.renderWhitespace": "all",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true
 }
