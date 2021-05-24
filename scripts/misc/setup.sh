@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# update apt-get
+sudo apt-get update
+
 # Make user fonts
 mkdir -p "$HOME/.fonts"
 
@@ -32,3 +35,8 @@ wget https://github.com/abertsch/Menlo-for-Powerline/raw/master/Menlo%20for%20Po
 
 #update font cache
 fc-cache -vf ~/.fonts
+
+
+# install ntfy
+sudo apt install python-dbus  # ntfy require dbus
+sudo pip install ntfy
