@@ -82,6 +82,7 @@ plugins=(
   command-not-found
   tmux
   autojump
+  gcloud
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -172,3 +173,9 @@ fi
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/alex/.sdkman"
 [[ -s "/home/alex/.sdkman/bin/sdkman-init.sh" ]] && source "/home/alex/.sdkman/bin/sdkman-init.sh"
+
+# DART
+PATH=$PATH:$HOME/snap/flutter/common/flutter/bin/cache/dart-sdk/bin
+
+# ntfy integration https://github.com/dschep/ntfy	
+eval "$(ntfy shell-integration --longer-than 30)"
