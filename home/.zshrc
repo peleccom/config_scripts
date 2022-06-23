@@ -75,7 +75,7 @@ plugins=(
   zsh-autosuggestions
   jira
   ng
-  django
+  # django  # Removed
   copyfile
   pip
   npm
