@@ -14,7 +14,7 @@
 	"workbench.colorCustomizations": {
         "tab.activeBorder": "#ff0000",
         "tab.unfocusedActiveBorder": "#000000"
-    },    
+    },
     "editor.fontLigatures": true,
     "prettier.arrowParens": "always",
     "prettier.endOfLine": "lf",
@@ -45,5 +45,8 @@
     },
     "editor.renderWhitespace": "all",
     "files.insertFinalNewline": true,
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "settingsSync.ignoredExtensions": [
+
+    ]
 }

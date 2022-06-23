@@ -2,6 +2,8 @@
 
 # update apt-get
 sudo apt-get update
+sudo apt-get install tmux python3-pip zsh xdotool
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # Make user fonts
 mkdir -p "$HOME/.fonts"
@@ -23,9 +25,9 @@ cd -
 ln -sf  `readlink -f ../../home/.zshrc` ~/
 
 #sublime text3
-mkdir -p ~/.config/sublime-text-3/Packages/
-rm -rf ~/.config/sublime-text-3/Packages/User
-ln -sf `readlink -f ../../home/.config/sublime-text-3/Packages/User/` ~/.config/sublime-text-3/Packages/
+#mkdir -p ~/.config/sublime-text-3/Packages/
+#rm -rf ~/.config/sublime-text-3/Packages/User
+#ln -sf `readlink -f ../../home/.config/sublime-text-3/Packages/User/` ~/.config/sublime-text-3/Packages/
 
 #vscode
 mkdir -p ~/.config/Code/User
@@ -39,4 +41,4 @@ fc-cache -vf ~/.fonts
 
 # install ntfy
 sudo apt install python-dbus  # ntfy require dbus
-sudo pip install ntfy
+sudo pip install ntfy  virtualenvwrapper
