@@ -67,6 +67,7 @@ DEFAULT_USER=$(whoami)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  gitfast
   docker
   docker-compose
   python
