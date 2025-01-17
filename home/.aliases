@@ -15,3 +15,4 @@ alias mkvirtualenv3='mkvirtualenv --python=`which python3`'
 alias ipy="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 alias mktmpenv3="mktmpenv -p python3 && pip install ipython jupyter ipdb"
 alias dirsize='du -sh'
+alias ccat='pygmentize -g -O style=colorful,linenos=1'

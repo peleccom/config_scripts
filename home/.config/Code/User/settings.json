@@ -1,5 +1,5 @@
 {
-    "diffEditor.ignoreTrimWhitespace": false,
+    "diffEditor.ignoreTrimWhitespace": true,
     "mjml.beautify": {
         "indent_size": 2,
         "wrap_attributes_indent_size": 2,
@@ -8,7 +8,7 @@
     },
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-    "workbench.colorTheme": "One Dark Pro",
+    "workbench.colorTheme": "One Dark Pro Mix",
     "workbench.iconTheme": "vscode-icons",
 	// Overrides colors from the currently selected color theme.
 	"workbench.colorCustomizations": {
@@ -27,7 +27,7 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "editor.rulers": [
         80,
@@ -48,5 +48,43 @@
     "files.trimTrailingWhitespace": true,
     "settingsSync.ignoredExtensions": [
 
-    ]
+    ],
+    "[html]": {
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "editor.minimap.renderCharacters": false,
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "yaml.schemas": {
+        "file:///home/aliaksandr/.vscode/extensions/atlassian.atlascode-3.0.3/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "atlascode.bitbucket.enabled": true,
+    "python.defaultInterpreterPath": "/home/aliaksandr/.virtualenvs/yolo",
+    "tabnine.experimentalAutoImports": true,
+    "dart.debugExternalPackageLibraries": false,
+    "dart.debugSdkLibraries": false,
+    "workbench.tree.enableStickyScroll": true,
+    "editor.stickyScroll.enabled": true,
+    "coverage-gutters.coverageFileNames": [
+        "lcov.info",
+        "cov.xml",
+        "coverage.xml",
+        "jacoco.xml",
+        "coverage.cobertura.xml"
+    ],
+    "terminal.integrated.scrollback": 100000,
+    "terminal.integrated.enablePersistentSessions": false,
+    "database-client.autoSync": true,
+    "codeium.enableConfig": {
+        "*": true
+    }
 }

@@ -2,7 +2,7 @@
 
 # update apt-get
 sudo apt-get update
-sudo apt-get install tmux python3-pip zsh xdotool
+sudo apt-get install tmux python3-pip zsh xdotool copyq
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # Make user fonts
