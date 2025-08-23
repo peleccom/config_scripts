@@ -6,6 +6,12 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Detect OS
+OS="linux"
+if [[ "$(uname)" == "Darwin" ]]; then
+  OS="macos"
+fi
+
 # Parse arguments
 INSTALL_TYPE="full"
 while [[ $# -gt 0 ]]; do
@@ -25,9 +31,24 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Common dependencies
-sudo apt-get update
-sudo apt-get install -y zsh curl git
+# Install package manager and common dependencies
+if [[ "$OS" == "macos" ]]; then
+  # Install Homebrew if not installed
+  if ! command -v brew &> /dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # Add Homebrew to PATH for Apple Silicon Macs
+    if [[ -f /opt/homebrew/bin/brew ]]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+  fi
+  # Install common dependencies
+  brew install zsh curl git
+else
+  # Linux dependencies
+  sudo apt-get update
+  sudo apt-get install -y zsh curl git
+fi
 
 # Install Oh My Zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -69,12 +90,36 @@ mkdir -p "$DOTFILES_ROOT/local"
 
 if [ "$INSTALL_TYPE" = "full" ]; then
   # Install additional tools for full setup
-  sudo apt-get install -y tmux python3-pip autojump fzf
+  if [[ "$OS" == "macos" ]]; then
+    brew install tmux python3 autojump fzf
+  else
+    sudo apt-get install -y tmux python3-pip autojump fzf
+  fi
+
+  # Set up Python paths
+  if [[ "$OS" == "macos" ]]; then
+    # Use Homebrew's Python
+    PYTHON_BIN_PATH="$(brew --prefix)/bin"
+    export PATH="$PYTHON_BIN_PATH:$PATH"
+  fi
+
   # Install argcomplete and ensure its scripts are in PATH
-  pip install --user argcomplete
-  echo $PATH
-  # export PATH="$HOME/.local/bin:$PATH"
-  activate-global-python-argcomplete --user
+  python3 -m pip install --user argcomplete
+
+  # Add local bin to PATH if not already there
+  USER_LOCAL_BIN="$HOME/.local/bin"
+  if [[ ":$PATH:" != *":$USER_LOCAL_BIN:"* ]]; then
+    export PATH="$USER_LOCAL_BIN:$PATH"
+  fi
+
+  # Install argcomplete global completion
+  if command -v activate-global-python-argcomplete &> /dev/null; then
+    activate-global-python-argcomplete --user
+  else
+    echo "Warning: activate-global-python-argcomplete not found in PATH"
+    echo "Current PATH: $PATH"
+    echo "Try running: python3 -m argcomplete.easy_install --user"
+  fi
   
   # Install development tools
   for module in "$SCRIPT_DIR/modules/"*.sh; do
@@ -86,7 +131,16 @@ fi
 
 # Change default shell to zsh if not in Docker
 if [ -z "${DOCKER_CONTAINER:-}" ] && [ "$SHELL" != "$(which zsh)" ]; then
-  chsh -s $(which zsh)
+  if [[ "$OS" == "macos" ]]; then
+    # macOS requires sudo and the full path in /etc/shells
+    ZSH_PATH="$(which zsh)"
+    if ! grep -q "$ZSH_PATH" /etc/shells; then
+      echo "$ZSH_PATH" | sudo tee -a /etc/shells
+    fi
+    chsh -s "$ZSH_PATH"
+  else
+    chsh -s $(which zsh)
+  fi
 else
   # In Docker, just set SHELL variable
   export SHELL=$(which zsh)

@@ -196,9 +196,20 @@ chmod 700 ~/.ssh/*/user.sh
 
 ## Integration
 
-The `pel_gitid` tool is automatically installed during the full setup:
+The `pel_gitid` tool is automatically installed during the full setup on both Linux and macOS:
 
+### Linux Installation
 ```bash
+# Manual installation
+cp bin/pel_gitid ~/bin/
+chmod +x ~/bin/pel_gitid
+```
+
+### macOS Installation
+```bash
+# Install dependencies
+brew install python3
+
 # Manual installation
 cp bin/pel_gitid ~/bin/
 chmod +x ~/bin/pel_gitid
@@ -209,9 +220,20 @@ chmod +x ~/bin/pel_gitid
 The tool supports command-line completion for identity names and hosts. To enable it:
 
 1. Install argcomplete and ensure its scripts are in PATH:
+
+   On Linux:
    ```bash
    # Install argcomplete in user's home directory
    pip install --user argcomplete
+
+   # Add pip scripts to PATH if not already there
+   export PATH="$HOME/.local/bin:$PATH"
+   ```
+
+   On macOS:
+   ```bash
+   # Install using Homebrew's Python
+   python3 -m pip install --user argcomplete
 
    # Add pip scripts to PATH if not already there
    export PATH="$HOME/.local/bin:$PATH"
