@@ -31,6 +31,7 @@
 
   # Container segment for p10k
   function prompt_container() {
+    [[ -n "${DOCKER_CONTAINER}" ]] || return
     # Debug: Print environment variable status
     echo "DOCKER_CONTAINER=${DOCKER_CONTAINER}"
     echo "CONTAINER_TYPE=${CONTAINER_TYPE}"
