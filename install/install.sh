@@ -115,6 +115,7 @@ if [ "$INSTALL_TYPE" = "full" ]; then
 
   # Install argcomplete and ensure its scripts are in PATH
   python3 -m pip install --user argcomplete
+  python3 -m pip install ntfy virtualenvwrapper
 
   # Add local bin to PATH if not already there
   USER_LOCAL_BIN="$HOME/.local/bin"

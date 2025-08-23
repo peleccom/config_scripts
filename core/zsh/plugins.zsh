@@ -59,3 +59,6 @@ fi
 
 # Plugin specific settings
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=blue'
+
+# Disable complete aliases for better plugin compatibility
+unsetopt completealiases

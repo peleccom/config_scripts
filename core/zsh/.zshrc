@@ -34,6 +34,12 @@ DOTFILES="$HOME/config_scripts"
 source "$DOTFILES/core/shell/env.sh"
 source "$DOTFILES/core/shell/aliases.sh"
 
+
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+
 # Plugin configuration
 source "$DOTFILES/core/zsh/plugins.zsh"
 

@@ -1,3 +1,6 @@
+# Kubernetes helper functions
+
+# Get pod image ID by pod name prefix
 kubepodimage() {
   local prefix=$1
   local pod=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep "^$prefix" | head -n1)
