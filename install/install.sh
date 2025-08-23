@@ -44,7 +44,7 @@ else
 fi
 
 # Install plugins
-install_plugin() {
+install_zsh_plugin() {
   local repo=$1
   local name=$(basename "$repo")
   local dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/$name"
@@ -57,8 +57,8 @@ install_plugin() {
   fi
 }
 
-install_plugin "zsh-users/zsh-autosuggestions"
-install_plugin "zsh-users/zsh-syntax-highlighting"
+install_zsh_plugin "zsh-users/zsh-autosuggestions"
+install_zsh_plugin "zsh-users/zsh-syntax-highlighting"
 
 # Create symbolic links
 ln -sf "$DOTFILES_ROOT/core/zsh/.zshrc" "$HOME/.zshrc"
@@ -69,7 +69,12 @@ mkdir -p "$DOTFILES_ROOT/local"
 
 if [ "$INSTALL_TYPE" = "full" ]; then
   # Install additional tools for full setup
-  sudo apt-get install -y tmux python3-pip autojump
+  sudo apt-get install -y tmux python3-pip autojump fzf
+  # Install argcomplete and ensure its scripts are in PATH
+  pip install --user argcomplete
+  echo $PATH
+  # export PATH="$HOME/.local/bin:$PATH"
+  activate-global-python-argcomplete --user
   
   # Install development tools
   for module in "$SCRIPT_DIR/modules/"*.sh; do

@@ -1,0 +1,38 @@
+#!/bin/sh
+# Machine-specific aliases
+# Copy this file to machine.sh and customize for your machine
+
+# Quick navigation to machine-specific directories
+alias cdw="cd $LOCAL_WORKSPACE"
+alias cdp="cd $PROJECT_HOME"
+alias cdt="cd $LOCAL_TOOLS"
+
+# Machine-specific commands
+alias update-machine='sudo apt update && sudo apt upgrade -y'
+alias cleanup-machine='sudo apt autoremove -y && sudo apt clean'
+
+# Project shortcuts
+alias start-dev='docker compose -f docker-compose.dev.yml up -d'
+alias stop-dev='docker compose -f docker-compose.dev.yml down'
+
+# Custom tools
+alias code="code-insiders"  # If using VS Code Insiders
+alias k="kubectl"          # Kubernetes shortcut
+
+# Machine-specific functions
+mconnect() {
+    # Example function to connect to specific machine services
+    service="$1"
+    case "$service" in
+        "db")
+            psql -h localhost -U postgres
+            ;;
+        "redis")
+            redis-cli
+            ;;
+        *)
+            echo "Unknown service: $service"
+            echo "Available services: db, redis"
+            ;;
+    esac
+}

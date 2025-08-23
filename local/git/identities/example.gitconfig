@@ -1,0 +1,9 @@
+# Example Git identity configuration
+# Copy this file and remove .example extension
+[user]
+    name = Your Name
+    email = your.email@example.com
+    signingkey = YOUR_GPG_KEY_ID
+
+[github]
+    user = your-github-username

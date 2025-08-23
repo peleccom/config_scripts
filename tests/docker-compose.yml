@@ -9,7 +9,6 @@ services:
     environment:
       - INSTALL_TYPE=lite
       - DOCKER_CONTAINER=1
-      - PATH=/home/testuser/bin:/home/testuser/.local/bin:/home/testuser/config_scripts/bin:${PATH}
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true
@@ -25,7 +24,6 @@ services:
     environment:
       - INSTALL_TYPE=full
       - DOCKER_CONTAINER=1
-      - PATH=/home/testuser/bin:/home/testuser/.local/bin:/home/testuser/config_scripts/bin:${PATH}
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true

@@ -1,0 +1,16 @@
+# Example SSH configuration for Git identities
+# Copy this file as 'config' (without .example extension)
+
+# Personal GitHub
+Host github.com-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_personal
+    IdentitiesOnly yes
+
+# Work GitHub
+Host github.com-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_work
+    IdentitiesOnly yes

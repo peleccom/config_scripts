@@ -54,7 +54,7 @@ docker compose -f docker-compose.dev.yml run --rm test-lite
    - Aliases
 
 3. Tool Tests
-   - gitid functionality
+   - pel_gitid functionality
    - Custom scripts
    - Path configuration
 

@@ -1,4 +1,39 @@
-# Ignore everything in local directory by default
+# Ignore everything in this directory
 *
+!.gitattributes
 !.gitignore
+!.gitkeep
 !README.md
+!*.example
+!example.*
+
+# Keep directory structure
+!*/
+
+# Ignore contents of subdirectories
+shell/env.d/*
+!shell/env.d/.gitkeep
+!shell/env.d/example.sh
+
+shell/aliases.d/*
+!shell/aliases.d/.gitkeep
+!shell/aliases.d/example.sh
+!shell/aliases.d/machine.sh.example
+
+git/identities/*
+!git/identities/.gitkeep
+!git/identities/example.gitconfig
+
+git/ssh/*
+!git/ssh/.gitkeep
+!git/ssh/config.example
+
+bin/*
+!bin/.gitkeep
+
+zsh/functions/*
+!zsh/functions/.gitkeep
+!zsh/functions/functions.zsh
+
+zsh/themes/*
+!zsh/themes/.gitkeep

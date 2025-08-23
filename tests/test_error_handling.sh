@@ -14,12 +14,12 @@ trap 'rm -rf "$TEST_TMP_DIR"' EXIT
 mkdir -p "$HOME/.ssh" "$TEST_TMP_DIR/local/shell/env.d"
 chmod 700 "$HOME/.ssh"
 
-# Add bin to PATH and ensure gitid is available
+# Add bin to PATH and ensure pel_gitid is available
 export PATH="$HOME/bin:$HOME/.local/bin:$HOME/config_scripts/bin:$PATH"
-if [[ ! -x "$HOME/bin/gitid" ]]; then
+if [[ ! -x "$HOME/bin/pel_gitid" ]]; then
     mkdir -p "$HOME/bin"
-    cp "$HOME/config_scripts/core/git/bin/gitid" "$HOME/bin/"
-    chmod +x "$HOME/bin/gitid"
+    cp "$HOME/config_scripts/bin/pel_gitid" "$HOME/bin/"
+    chmod +x "$HOME/bin/pel_gitid"
 fi
 
 # Color output
@@ -63,19 +63,19 @@ run_test() {
 echo "Starting error handling tests..."
 echo "================================"
 
-# Test 1: Invalid gitid command
-run_test "Invalid gitid command" \
-    "gitid invalid-command" \
+# Test 1: Invalid pel_gitid command
+run_test "Invalid pel_gitid command" \
+    "pel_gitid invalid-command" \
     2
 
 # Test 2: Switch to non-existent git identity
 run_test "Switch to non-existent git identity" \
-    "gitid switch non-existent-identity" \
+    "pel_gitid switch non-existent-identity" \
     1
 
 # Test 3: Create git identity without email
 run_test "Create git identity without email" \
-    "gitid create test-identity" \
+    "pel_gitid create test-identity" \
     2
 
 # Test 4: Invalid environment file
@@ -99,7 +99,7 @@ run_test "Permission denied" \
 
 # Test 7: Invalid SSH key type
 run_test "Invalid SSH key type" \
-    "gitid create test test@test.com --key-type invalid" \
+    "pel_gitid create test test@test.com --key-type invalid" \
     1
 
 echo "Running shell script linting..."

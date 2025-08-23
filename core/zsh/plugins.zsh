@@ -1,10 +1,18 @@
 # Oh My Zsh Plugin Configuration
 
 # Plugin settings
-zstyle ':omz:plugins:alias-finder' autoload yes
-zstyle ':omz:plugins:alias-finder' longer yes
-zstyle ':omz:plugins:alias-finder' exact yes
-zstyle ':omz:plugins:alias-finder' cheaper yes
+zstyle ':omz:plugins:alias-finder' autoload yes # disabled by default
+zstyle ':omz:plugins:alias-finder' longer yes # disabled by default
+zstyle ':omz:plugins:alias-finder' exact yes # disabled by default
+zstyle ':omz:plugins:alias-finder' cheaper yes # disabled by default
+
+
+unsetopt completealiases
+# Which plugins would you like to load?
+# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
 
 # Core plugins that should be available everywhere
 plugins=(
@@ -13,14 +21,28 @@ plugins=(
   docker-compose
   python
   sudo
-  zsh-autosuggestions
-  zsh-syntax-highlighting
+  virtualenvwrapper
+  zsh-autosuggestions # git clone https://github.com/zsh-users/zsh-autosuggestions 
+  zsh-syntax-highlighting # git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+  jira
+  ng
+  # django  # Removed
   copyfile
   pip
+  poetry
+  pyenv
+  npm
+  nvm
   command-not-found
+  tmux
+  autojump
+  gcloud
+  npm
   colored-man-pages
   aliases
   alias-finder
+  kubectl
+  aws
   z
   zsh-interactive-cd
 )

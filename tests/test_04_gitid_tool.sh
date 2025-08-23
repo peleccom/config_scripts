@@ -3,15 +3,15 @@
 set -e
 set -u
 
-# Test gitid tool
+# Test pel_gitid tool
 test_gitid_tool() {
-    echo "Testing gitid tool..."
+    echo "Testing pel_gitid tool..."
 
     # Make tool executable
-    chmod +x ~/config_scripts/core/git/bin/gitid
+    chmod +x ~/config_scripts/bin/pel_gitid
 
     # Add tool to PATH
-    export PATH="$HOME/config_scripts/core/git/bin:$PATH"
+    export PATH="$HOME/config_scripts/bin:$PATH"
 
     # Create test directory
     TEST_DIR=$(mktemp -d)
@@ -23,7 +23,7 @@ test_gitid_tool() {
 
     # Test identity creation
     echo "Testing identity creation..."
-    gitid create test test@example.com
+    pel_gitid create test test@example.com
 
     # Verify SSH config
     if ! grep -q "github.com-test" ~/.ssh/config; then
@@ -39,7 +39,7 @@ test_gitid_tool() {
 
     # Test identity listing
     echo "Testing identity listing..."
-    if ! gitid list | grep -q "github.com-test"; then
+    if ! pel_gitid list | grep -q "github.com-test"; then
         echo "Identity listing failed"
         return 1
     fi
@@ -47,7 +47,7 @@ test_gitid_tool() {
     # Test identity switching
     echo "Testing identity switching..."
     git remote add origin git@github.com:test/repo.git
-    gitid switch github.com-test
+    pel_gitid switch github.com-test
 
     # Verify identity switch
     if ! git config user.email | grep -q "test@example.com"; then
@@ -57,14 +57,14 @@ test_gitid_tool() {
 
     # Test current identity
     echo "Testing current identity display..."
-    if ! gitid current | grep -q "test@example.com"; then
+    if ! pel_gitid current | grep -q "test@example.com"; then
         echo "Current identity display failed"
         return 1
     fi
 
     # Clean up
     rm -rf "$TEST_DIR"
-    echo "gitid tool tests passed"
+    echo "pel_gitid tool tests passed"
     return 0
 }
 

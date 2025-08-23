@@ -15,7 +15,7 @@ A comprehensive development environment configuration management system that pro
 - 🔐 **Advanced Git Identity Management**
   - Multiple Git identities (personal/work)
   - Secure SSH key handling
-  - Easy identity switching with `gitid` tool
+  - Easy identity switching with `pel_gitid` tool
   - Backward compatibility with legacy scripts
 
 - 🐳 **Docker-based Testing**
@@ -77,13 +77,13 @@ cd config_scripts
 
 ```bash
 # Create a new Git identity
-gitid create personal personal@email.com
+pel_gitid create personal personal@email.com
 
 # List configured identities
-gitid list
+pel_gitid list
 
 # Switch identity in a repository
-gitid switch github.com-personal
+pel_gitid switch github.com-personal
 ```
 
 ## 🔧 Configuration
@@ -199,7 +199,7 @@ pel_test_config --type lite  # Includes linting checks
 - [Git Key Management](core/git/docs/GIT_KEYS.md)
 - [Quick Reference](core/git/docs/QUICK_REFERENCE.md)
 - [Troubleshooting](core/git/docs/TROUBLESHOOTING.md)
-- [gitid Tool Guide](core/git/docs/GITID_TOOL.md)
+- [pel_gitid Tool Guide](core/git/docs/GITID_TOOL.md)
 
 ### Additional Resources
 - [Installation Guide](install/README.md)

@@ -9,12 +9,14 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm-256color \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
-    POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+    POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true \
+    PATH="/home/testuser/.local/bin:${PATH}"
 
 # Install basic dependencies and fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
+    ssh \
     sudo \
     zsh \
     python3 \
@@ -30,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create test user and prepare directories
 RUN useradd -m -s /bin/zsh testuser \
     && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && mkdir -p /home/testuser/config_scripts \
+    && mkdir -p /home/testuser/config_scripts /home/testuser/.local/bin \
     && chown -R testuser:testuser /home/testuser
 
 # Switch to test user
@@ -40,14 +42,6 @@ WORKDIR /home/testuser/config_scripts
 # Copy configuration files
 COPY --chown=testuser:testuser . /home/testuser/config_scripts/
 
-# Create required directories
-RUN mkdir -p \
-    /home/testuser/config_scripts/core/shell/env.d \
-    /home/testuser/config_scripts/core/shell/aliases.d \
-    /home/testuser/config_scripts/local/shell/env.d \
-    /home/testuser/config_scripts/local/shell/aliases.d \
-    /home/testuser/.cache/p10k-testuser \
-    /home/testuser/bin
 
 # Lite version
 FROM base AS lite

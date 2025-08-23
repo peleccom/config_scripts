@@ -1,56 +1,32 @@
-# Local Configuration
+# Local Configuration Directory
 
-This directory contains machine-specific and work-specific configurations that should not be tracked in git.
+This directory contains machine-specific configurations that should not be committed to git.
 
 ## Directory Structure
 
-```
-local/
-├── bin/                    # Local/work-specific scripts
-├── zsh/                    # Local ZSH configurations
-│   ├── aliases/           # Work-specific aliases
-│   ├── env/              # Environment variables
-│   └── functions/        # Custom functions
-├── git/                    # Local Git configurations
-└── projects/              # Project-specific configurations
-    └── example-project/   # Example project configuration
-```
+- `shell/`
+  - `aliases.d/` - Machine-specific shell aliases
+  - `env.d/` - Machine-specific environment variables
+- `git/`
+  - `identities/` - Local Git identity configurations
+  - `ssh/` - Local SSH keys and configurations
+- `bin/` - Machine-specific scripts and binaries
+- `zsh/`
+  - `functions/` - Local Zsh functions
+  - `themes/` - Local Zsh theme customizations
 
 ## Usage
 
-1. Copy example configurations from `examples/local/`:
-   ```bash
-   cp -r examples/local/* local/
-   ```
-
-2. Modify configurations for your needs:
-   - Add work-specific environment variables
-   - Configure project-specific tools
-   - Add custom scripts
-
-3. Add project-specific scripts to `local/bin/`:
-   ```bash
-   mv bin/ph_* local/bin/
-   ```
+1. Copy example files without the `.example` extension
+2. Modify the copied files with your machine-specific settings
+3. Do not commit your local settings to git
 
 ## Examples
 
-### Work Configuration
 ```bash
-# local/zsh/env/work.zsh
-export WORK_PROJECT_ROOT="/path/to/work"
-export WORK_TOOLS_PATH="/path/to/tools"
+# Copy environment template
+cp shell/env.local.example shell/env.local
+
+# Copy machine-specific aliases template
+cp shell/aliases.d/machine.sh.example shell/aliases.d/machine.sh
 ```
-
-### Project Scripts
-```bash
-# local/bin/project_setup.sh
-#!/bin/bash
-# Project-specific setup script
-```
-
-## Security
-
-- Never commit sensitive information
-- Keep credentials in environment variables
-- Use secure file permissions

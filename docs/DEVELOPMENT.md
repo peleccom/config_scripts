@@ -23,7 +23,7 @@ The container will:
 ## Available Tools
 
 Inside the container, you can use:
-- `gitid` - Manage Git identities
+- `pel_gitid` - Manage Git identities
 - `pel_test_config` - Run configuration tests
 - All standard shell tools
 - Development tools (in full environment)
@@ -39,7 +39,7 @@ Inside the container, you can use:
 3. Try your changes:
    ```bash
    # Inside container
-   gitid list              # Test Git identity management
+   pel_gitid list              # Test Git identity management
    source ~/.zshrc         # Test shell configuration
    pel_test_config --lite      # Run tests
    ```

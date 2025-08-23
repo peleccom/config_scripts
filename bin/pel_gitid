@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
 """
-gitid - Simple Git Identity Management Tool
+pel_gitid - Git Identity Management Tool
+
+Manages multiple Git identities for different Git servers and repositories.
 """
 
 import argparse
@@ -8,6 +11,13 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+try:
+    import argcomplete
+except ImportError:
+    print("Warning: argcomplete not found. Install it for command completion support:")
+    print("pip install argcomplete")
+    print("Then run: activate-global-python-argcomplete --user")
+    print("Or for system-wide installation: sudo activate-global-python-argcomplete")
 
 def run_command(cmd, check=True):
     """Run a shell command and return its output"""
@@ -29,6 +39,28 @@ def setup_ssh_dir(path):
     path.mkdir(parents=True, exist_ok=True)
     path.chmod(0o700)
 
+def get_identity_names():
+    """Get list of configured identity names"""
+    config_dir = get_config_dir()
+    identities = []
+    if config_dir.exists():
+        for path in config_dir.iterdir():
+            if path.is_dir() and (path / 'user.sh').exists():
+                identities.append(path.name)
+    return identities
+
+def get_identity_hosts():
+    """Get list of configured identity hosts"""
+    config_file = get_config_dir() / 'config'
+    hosts = []
+    if config_file.exists():
+        with open(config_file) as f:
+            for line in f:
+                if line.strip().startswith('Host ') and not line.strip().endswith('*'):
+                    host = line.strip().split()[-1]
+                    hosts.append(host)
+    return hosts
+
 def list_identities():
     """List all configured Git identities"""
     config_file = get_config_dir() / 'config'
@@ -39,7 +71,7 @@ def list_identities():
     print("Configured Git identities:")
     with open(config_file) as f:
         for line in f:
-            if line.strip().startswith('Host github.com-'):
+            if line.strip().startswith('Host ') and not line.strip().endswith('*'):
                 host = line.strip().split()[-1]
                 print(f"- {host}")
 
@@ -84,18 +116,15 @@ def switch_identity(identity):
             print(f"Updated remote to: {new_remote}")
 
     # Load identity-specific Git config
-    if 'personal' in identity:
-        run_command("git config user.email 'personal@email.com'")
-        run_command("git config user.name 'Personal Name'")
-    elif 'work' in identity:
-        run_command("git config user.email 'work@company.com'")
-        run_command("git config user.name 'Work Name'")
+    identity_name = identity.split('-')[-1]  # Extract identity name from host
+    user_script = get_config_dir() / identity_name / 'user.sh'
+    if user_script.exists():
+        run_command(f"bash {user_script}")
+        print(f"Loaded user configuration from: {user_script}")
 
-    print(f"Switched to identity: {identity}")
-
-def create_identity(name, email, key_type="rsa", key_bits=4096):
+def create_identity(name, email, host="github.com", key_type="rsa", key_bits=4096):
     """Create a new Git identity"""
-    identity = f"github.com-{name}"
+    identity = f"{host}-{name}"
     key_dir = get_config_dir() / name
     setup_ssh_dir(key_dir)
 
@@ -107,9 +136,9 @@ def create_identity(name, email, key_type="rsa", key_bits=4096):
     # Update SSH config
     config_file = get_config_dir() / 'config'
     config_content = f"""
-# {name.title()} GitHub
+# {name.title()} {host}
 Host {identity}
-    HostName github.com
+    HostName {host}
     User git
     IdentityFile ~/.ssh/{name}/id_rsa
     IdentitiesOnly yes
@@ -117,11 +146,21 @@ Host {identity}
     with open(config_file, 'a') as f:
         f.write(config_content)
 
+    # Create Git config script
+    user_script = key_dir / "user.sh"
+    with open(user_script, 'w') as f:
+        f.write(f"""#!/bin/bash
+# Global git configuration for {name}
+git config user.email "{email}"
+git config user.name "{name.title()}"
+""")
+    user_script.chmod(0o700)
+
     # Create Git config
     git_config = Path.home() / f'.gitconfig-{name}'
     with open(git_config, 'w') as f:
         f.write(f"""[user]
-    name = {name.title()} Name
+    name = {name.title()}
     email = {email}
 [core]
     sshCommand = "ssh -F ~/.ssh/config -i ~/.ssh/{name}/id_rsa"
@@ -130,15 +169,57 @@ Host {identity}
     print(f"""Identity '{identity}' created successfully!
 
 To use this identity:
-1. Add this public key to GitHub:
+1. Add this public key to {host}:
    {key_file}.pub
 
 2. Test the connection:
    ssh -T git@{identity}
 
 3. Switch to this identity in a repository:
-   gitid switch {identity}
+   pel_gitid switch {identity}
+
+4. To set a repository-specific name:
+   pel_gitid set-name "Custom Name"
 """)
+
+def set_repo_name(name):
+    """Set repository-specific user name"""
+    if not Path('.git').exists():
+        print("Error: Not in a git repository")
+        sys.exit(1)
+    
+    run_command(f'git config user.name "{name}"')
+    print(f"Set repository-specific name to: {name}")
+
+def apply_identity(name):
+    """Apply an identity's configuration to the current repository"""
+    if not Path('.git').exists():
+        print("Error: Not in a git repository")
+        sys.exit(1)
+
+    config_dir = get_config_dir()
+    identity_dir = config_dir / name
+    user_script = identity_dir / "user.sh"
+
+    if not identity_dir.exists():
+        print(f"Error: Identity '{name}' not found")
+        sys.exit(1)
+
+    if not user_script.exists():
+        print(f"Error: Configuration script not found for identity '{name}'")
+        sys.exit(1)
+
+    run_command(f"bash {user_script}")
+    print(f"Applied configuration from identity: {name}")
+    get_current_identity()
+
+def identity_completer(prefix, **kwargs):
+    """Completion function for identity names"""
+    return (i for i in get_identity_names() if i.startswith(prefix))
+
+def host_completer(prefix, **kwargs):
+    """Completion function for identity hosts"""
+    return (h for h in get_identity_hosts() if h.startswith(prefix))
 
 def main():
     parser = argparse.ArgumentParser(description="Git Identity Management Tool")
@@ -152,14 +233,27 @@ def main():
 
     # Switch command
     switch_parser = subparsers.add_parser('switch', help='Switch to a different identity')
-    switch_parser.add_argument('identity', help='Identity to switch to')
+    switch_parser.add_argument('identity', help='Identity to switch to').completer = host_completer
 
     # Create command
     create_parser = subparsers.add_parser('create', help='Create a new identity')
     create_parser.add_argument('name', help='Identity name (e.g., personal, work)')
     create_parser.add_argument('email', help='Email address for the identity')
+    create_parser.add_argument('--host', default='github.com', help='Git server hostname (default: github.com)')
     create_parser.add_argument('--key-type', default='rsa', help='SSH key type (default: rsa)')
     create_parser.add_argument('--key-bits', type=int, default=4096, help='SSH key bits (default: 4096)')
+
+    # Set repo name command
+    name_parser = subparsers.add_parser('set-name', help='Set repository-specific user name')
+    name_parser.add_argument('name', help='Custom name for this repository')
+
+    # Apply identity command
+    apply_parser = subparsers.add_parser('apply', help='Apply identity configuration to current repository')
+    apply_parser.add_argument('name', help='Identity name to apply (e.g., personal, work)').completer = identity_completer
+
+    # Enable command completion
+    if 'argcomplete' in sys.modules:
+        argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
 
@@ -170,7 +264,11 @@ def main():
     elif args.command == 'switch':
         switch_identity(args.identity)
     elif args.command == 'create':
-        create_identity(args.name, args.email, args.key_type, args.key_bits)
+        create_identity(args.name, args.email, args.host, args.key_type, args.key_bits)
+    elif args.command == 'set-name':
+        set_repo_name(args.name)
+    elif args.command == 'apply':
+        apply_identity(args.name)
     else:
         parser.print_help()
 
