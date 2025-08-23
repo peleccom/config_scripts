@@ -1,6 +1,6 @@
 # Config Scripts
 
-[![Tests](https://github.com/yourusername/config_scripts/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/config_scripts/actions/workflows/test.yml)
+[![Tests](https://github.com/peleccom/config_scripts/actions/workflows/test.yml/badge.svg)](https://github.com/peleccom/config_scripts/actions/workflows/test.yml)
 
 A comprehensive development environment configuration management system that provides modular, secure, and maintainable configurations for multiple development scenarios.
 
