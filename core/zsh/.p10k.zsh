@@ -29,10 +29,28 @@
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
+  # Container segment for p10k
+  function prompt_container() {
+    # Debug: Print environment variable status
+    echo "DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+    echo "CONTAINER_TYPE=${CONTAINER_TYPE}"
+
+    # Only show in container
+    [[ -z "${DOCKER_CONTAINER}" ]] && return
+
+    local container_type="${CONTAINER_TYPE:-container}"
+    p10k segment -b 208 -f 0 -i '🐳' -t "[${container_type}]"
+  }
+
+  # Container segment styling
+  typeset -g POWERLEVEL9K_CONTAINER_FOREGROUND=0
+  typeset -g POWERLEVEL9K_CONTAINER_BACKGROUND=208
+  typeset -g POWERLEVEL9K_CONTAINER_VISUAL_IDENTIFIER_EXPANSION='🐳'
+
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
-    # os_icon               # os identifier
+    container               # container indicator
     dir                     # current directory
     vcs                     # git status
     # =========================[ Line #2 ]=========================

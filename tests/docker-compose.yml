@@ -9,10 +9,13 @@ services:
     environment:
       - INSTALL_TYPE=lite
       - DOCKER_CONTAINER=1
+      - CONTAINER_TYPE=lite
+      - CONTAINER_NAME=config-test-lite
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true
     user: testuser
+    container_name: config-test-lite
 
   test-full:
     build:
@@ -24,7 +27,10 @@ services:
     environment:
       - INSTALL_TYPE=full
       - DOCKER_CONTAINER=1
+      - CONTAINER_TYPE=full
+      - CONTAINER_NAME=config-test-full
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true
     user: testuser
+    container_name: config-test-full
