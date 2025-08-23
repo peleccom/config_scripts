@@ -1,28 +1,30 @@
 #!/bin/bash
-# https://askubuntu.com/questions/1311428/20-10-getting-notifications-despite-do-not-disturb
-function change_app_notification() {
-    APPS=( $(dconf list "/org/gnome/desktop/notifications/application/") )
-    declare -p APPS
 
-    local enable=$1
+# Get all notification IDs
+readarray -t notifications < <(notify-send -p)
 
-    for app in "${APPS[@]}"
-    do
-        echo "$app 'enable' to -> $enable"
-        dconf write "/org/gnome/desktop/notifications/application/${app}enable" $enable
-        # show-banners has no effect
-        # dconf write "/org/gnome/desktop/notifications/application/${app}show-banners" $enable
+# Check if notifications are already disabled
+if [ -f /tmp/dnd ]; then
+    # Re-enable notifications
+    rm /tmp/dnd
+    for id in "${notifications[@]}"; do
+        gdbus call --session \
+            --dest=org.freedesktop.Notifications \
+            --object-path=/org/freedesktop/Notifications \
+            --method=org.freedesktop.Notifications.CloseNotification "$id"
     done
-
-}
-
-# first sync current state
-change_app_notification $(gsettings get org.gnome.desktop.notifications show-banners)
-
-# monitoring show-banners value
-while read line
-do
-    show_banners=$(echo $line | cut -d' ' -f2)
-    echo "current gnome notifications show-banners : $show_banners"
-    change_app_notification $show_banners
-done < <(gsettings monitor org.gnome.desktop.notifications show-banners)
+    notify-send "Notifications enabled"
+else
+    # Disable notifications
+    touch /tmp/dnd
+    for id in "${notifications[@]}"; do
+        gdbus call --session \
+            --dest=org.freedesktop.Notifications \
+            --object-path=/org/freedesktop/Notifications \
+            --method=org.freedesktop.Notifications.CloseNotification "$id"
+    done
+    read -r -p "Enter duration (minutes, empty for indefinite): " duration
+    if [ -n "$duration" ]; then
+        (sleep "$((duration * 60))" && rm "/tmp/dnd" && notify-send "DND disabled after $duration minutes") &
+    fi
+fi

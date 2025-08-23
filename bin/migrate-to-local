@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Script to migrate project-specific files to local directory
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Project-specific patterns
+PATTERNS=(
+    "ph_*"        # PriceHubble scripts
+    "pel_*"       # PEL scripts
+    "*_work.*"    # Work-specific scripts
+)
+
+# Create local directories if they don't exist
+mkdir -p "$PROJECT_ROOT/local/bin"
+mkdir -p "$PROJECT_ROOT/local/zsh/env"
+
+# Move project-specific scripts to local/bin
+for pattern in "${PATTERNS[@]}"; do
+    find "$PROJECT_ROOT/bin" -name "$pattern" -type f | while read -r file; do
+        filename=$(basename "$file")
+        echo "Moving $filename to local/bin/"
+        mv "$file" "$PROJECT_ROOT/local/bin/"
+    done
+done
+
+# Update .gitignore
+if ! grep -q "local/bin/" "$PROJECT_ROOT/.gitignore"; then
+    echo "local/bin/" >> "$PROJECT_ROOT/.gitignore"
+fi
+
+# Create example work environment file
+cat > "$PROJECT_ROOT/local/zsh/env/work.zsh.example" << 'EOL'
+# Work-specific environment variables
+export WORK_PROJECT_ROOT="/path/to/work"
+export WORK_TOOLS_PATH="/path/to/tools"
+
+# Project-specific paths
+export PROJECT_HOME="$WORK_PROJECT_ROOT/projects"
+
+# Add local/bin to PATH
+export PATH="$HOME/config_scripts/local/bin:$PATH"
+EOL
+
+echo "Migration completed! Please review the changes and update your configurations."

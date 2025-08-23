@@ -1,21 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 
-df -h
+# Clean up docker
+docker system prune -f
 
-# Clear yarn cache
-yarn cache clean
+# Clean up apt
+sudo apt-get clean
+sudo apt-get autoremove -y
 
-# Clear npm cache
-npm cache clean --force
+# Clean up snap
+sudo snap set system refresh.retain=2
+LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}' |
+    while read -r snapname revision; do
+        sudo snap remove "$snapname" --revision="$revision"
+    done
 
-#Docker
-docker rm $(docker ps -q -f "status=exited")
+# Clean up journal
+sudo journalctl --vacuum-time=3d
 
-docker rmi $(docker images -q -f "dangling=true")
+# Clean up thumbnails
+rm -rf "$HOME/.cache/thumbnails"/*
 
-
-sudo apt clean
-
-sudo apt autoremove --purge
-
-df -h
+# Clean up old kernels
+dpkg -l 'linux-*' | sed '/^ii/!d;/'"$(uname -r | sed "s/\(.*\)-\([^0-9]\+\)/\1/")"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d' | 
+    xargs sudo apt-get -y purge

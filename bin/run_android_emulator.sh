@@ -1,4 +1,5 @@
-#!/bin/sh
-cd $ANDROID_HOME/tools
-emulator @$(emulator -list-avds|head -n 1)
-cd -
+#!/bin/bash
+(
+    cd "$ANDROID_HOME/emulator" || exit 1
+    ./emulator "$(./emulator -list-avds | head -n 1)"
+)

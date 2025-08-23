@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""
+pel_dev_config - Manage development containers for config testing
+
+This script provides a persistent development environment for testing configurations.
+Unlike pel_test_config which creates temporary containers, this tool manages long-running
+containers that persist between sessions.
+
+Examples:
+    # Start a lite development container
+    pel_dev_config start
+
+    # Start a full development container
+    pel_dev_config start --type full
+
+    # Open a shell in the running container
+    pel_dev_config shell
+
+    # Stop all development containers
+    pel_dev_config stop
+
+    # Show container status
+    pel_dev_config status
+
+    # Clean up containers and volumes
+    pel_dev_config clean
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+import time
+
+def run_command(cmd, check=True, capture_output=True):
+    """Run a shell command and return its output"""
+    try:
+        result = subprocess.run(cmd, shell=True, text=True,
+                             capture_output=capture_output, check=check)
+        return result.stdout.strip() if capture_output else None
+    except subprocess.CalledProcessError as e:
+        if capture_output:
+            print(f"Error: {e.stderr}", file=sys.stderr)
+        if check:
+            sys.exit(1)
+        return None
+
+def get_compose_file():
+    """Get the path to the docker-compose.dev.yml file"""
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(project_root, "tests", "docker-compose.dev.yml")
+
+def ensure_container_running(container_type="lite"):
+    """Ensure the specified container is running"""
+    compose_file = get_compose_file()
+    service_name = f"test-{container_type}"
+
+    # Check if container is running
+    status = run_command(f"docker compose -f {compose_file} ps {service_name}", check=False)
+    if not status or "Up" not in status:
+        print(f"Starting {service_name} container...")
+        run_command(f"docker compose -f {compose_file} up -d {service_name}")
+        
+        # Wait for container to be ready
+        print("Waiting for container to be ready...")
+        time.sleep(2)
+        
+        # Run installation if home directory is empty
+        check_cmd = f"docker compose -f {compose_file} exec -T {service_name} test -f /home/testuser/.zshrc"
+        if run_command(check_cmd, check=False, capture_output=False) != "0":
+            print("Running initial setup...")
+            setup_cmd = f"docker compose -f {compose_file} exec {service_name}"
+            setup_cmd += f" bash -c 'cd ~/config_scripts && ./install/install.sh --{container_type}'"
+            try:
+                run_command(setup_cmd, capture_output=False)
+            except subprocess.CalledProcessError:
+                print("\nError: Initial setup failed. Cleaning up...", file=sys.stderr)
+                run_command(f"docker compose -f {compose_file} rm -f {service_name}")
+                sys.exit(1)
+
+def start_container(args):
+    """Start a development container"""
+    print(f"Starting {args.type} development container...")
+    ensure_container_running(args.type)
+    print(f"Container test-{args.type} is ready!")
+
+def stop_containers(args):
+    """Stop all development containers"""
+    print("Stopping development containers...")
+    run_command(f"docker compose -f {get_compose_file()} down")
+
+def restart_container(args):
+    """Restart a development container"""
+    print(f"Restarting {args.type} development container...")
+    compose_file = get_compose_file()
+    service_name = f"test-{args.type}"
+    run_command(f"docker compose -f {compose_file} restart {service_name}")
+    ensure_container_running(args.type)
+
+def open_shell(args):
+    """Open a shell in the container"""
+    ensure_container_running(args.type)
+    print(f"Opening shell in test-{args.type} container...")
+    run_command(f"docker compose -f {get_compose_file()} exec test-{args.type} zsh -l",
+               capture_output=False)
+
+def clean_environment(args):
+    """Remove development containers and volumes"""
+    print("Removing development containers and volumes...")
+    run_command(f"docker compose -f {get_compose_file()} down -v")
+
+def show_status(args):
+    """Show container status"""
+    print("Development container status:")
+    run_command(f"docker compose -f {get_compose_file()} ps", capture_output=False)
+
+def rebuild_container(args):
+    """Rebuild the development container"""
+    print(f"Rebuilding {args.type} development container...")
+    compose_file = get_compose_file()
+    service_name = f"test-{args.type}"
+    
+    # Stop the container first if it's running
+    run_command(f"docker compose -f {compose_file} stop {service_name}", check=False)
+    
+    # Build with no cache
+    build_cmd = f"docker compose -f {compose_file} build --no-cache {service_name}"
+    try:
+        run_command(build_cmd, capture_output=False)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Build failed with exit code {e.returncode}", file=sys.stderr)
+        sys.exit(e.returncode)
+    
+    print("Build completed successfully.")
+    
+    if args.start:
+        start_container(args)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Manage development containers for config testing",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+examples:
+  # Start a lite development container
+  %(prog)s start
+
+  # Start a full development container
+  %(prog)s start --type full
+
+  # Open a shell in the running container
+  %(prog)s shell
+
+  # Stop all development containers
+  %(prog)s stop
+
+  # Show container status
+  %(prog)s status
+
+  # Clean up containers and volumes
+  %(prog)s clean
+
+  # Rebuild container and optionally start it
+  %(prog)s rebuild --start
+""")
+
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+
+    # Start command
+    start_parser = subparsers.add_parser("start", help="Start development container")
+    start_parser.add_argument("--type", choices=["lite", "full"], default="lite",
+                           help="Installation type (default: lite)")
+
+    # Stop command
+    subparsers.add_parser("stop", help="Stop all development containers")
+
+    # Restart command
+    restart_parser = subparsers.add_parser("restart", help="Restart development container")
+    restart_parser.add_argument("--type", choices=["lite", "full"], default="lite",
+                             help="Installation type (default: lite)")
+
+    # Shell command
+    shell_parser = subparsers.add_parser("shell", help="Open shell in container")
+    shell_parser.add_argument("--type", choices=["lite", "full"], default="lite",
+                           help="Installation type (default: lite)")
+
+    # Clean command
+    subparsers.add_parser("clean", help="Remove containers and volumes")
+
+    # Status command
+    subparsers.add_parser("status", help="Show container status")
+
+    # Rebuild command
+    rebuild_parser = subparsers.add_parser("rebuild", help="Rebuild development container")
+    rebuild_parser.add_argument("--type", choices=["lite", "full"], default="lite",
+                             help="Installation type (default: lite)")
+    rebuild_parser.add_argument("--start", action="store_true",
+                             help="Start container after rebuild")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    # Command dispatch
+    commands = {
+        "start": start_container,
+        "stop": stop_containers,
+        "restart": restart_container,
+        "shell": open_shell,
+        "clean": clean_environment,
+        "status": show_status,
+        "rebuild": rebuild_container
+    }
+
+    commands[args.command](args)
+
+if __name__ == "__main__":
+    main()

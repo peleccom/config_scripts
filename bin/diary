@@ -1,18 +1,6 @@
 #!/bin/bash
 
-if [[ $1 = "-h" ]]
-then
-    HIDE=1
-fi
-
-if [[ $HIDE ]]
-then
-    stty -echo
-fi
-
-DIARY="$HOME/Dropbox/$(basename $0).org"
-echo "* $(LC_ALL=C date -R)" >> "$DIARY"
-cat >> "$DIARY"
-stty echo
-echo >> "$DIARY"
-
+# Open diary entry for today
+DIARY_DIR="$HOME/Documents/diary"
+mkdir -p "$DIARY_DIR"
+"${EDITOR:-vim}" "$DIARY_DIR/$(date +%Y-%m-%d).md"

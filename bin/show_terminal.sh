@@ -1,5 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
-# Make terminal window singletone
-
-xdotool windowactivate `xdotool search --classname "Gnome-terminal" |tail -1` || gnome-terminal
+# Show terminal window
+wmctrl -a "$(xdotool getactivewindow getwindowname)"

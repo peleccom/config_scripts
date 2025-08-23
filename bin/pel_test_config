@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""
+pel_test_config - Test configurations in a Docker container
+
+This script provides a simple way to test your configuration in an isolated Docker environment.
+It supports both interactive testing and automated test execution.
+
+Examples:
+    # Run full test suite
+    pel_test_config
+
+    # Run lite version tests
+    pel_test_config --type lite
+
+    # Interactive shell with full config
+    pel_test_config -i
+
+    # Skip tests and just get a shell
+    pel_test_config -i --no-test
+
+    # Force rebuild container before testing
+    pel_test_config --rebuild
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+
+def run_command(cmd, check=True, capture_output=True):
+    """Run a shell command and return its output"""
+    try:
+        result = subprocess.run(cmd, shell=True, text=True,
+                             capture_output=capture_output, check=check)
+        return result.stdout.strip() if capture_output else None
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}", file=sys.stderr)
+        if check:
+            sys.exit(1)
+        return None
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Test configurations in a Docker container",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+examples:
+  # Run full test suite
+  %(prog)s
+
+  # Run lite version tests
+  %(prog)s --type lite
+
+  # Interactive shell with full config
+  %(prog)s -i
+
+  # Skip tests and just get a shell
+  %(prog)s -i --no-test
+
+  # Force rebuild container before testing
+  %(prog)s --rebuild
+""")
+    
+    parser.add_argument("--type", choices=["lite", "full"], default="full",
+                      help="Installation type (default: full)")
+    parser.add_argument("--interactive", "-i", action="store_true",
+                      help="Run container in interactive mode")
+    parser.add_argument("--no-test", "-n", action="store_true",
+                      help="Skip running test suite")
+    parser.add_argument("--rebuild", "-r", action="store_true",
+                      help="Force rebuild of the container (uses --no-cache)")
+    args = parser.parse_args()
+
+    # Get project root directory
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    compose_file = os.path.join(project_root, "tests", "docker-compose.yml")
+
+    # Build the service name
+    service_name = f"test-{args.type}"
+
+    # Build container if requested
+    if args.rebuild:
+        print(f"Rebuilding {service_name} container...")
+        build_cmd = f"docker compose -f {compose_file} build --no-cache {service_name}"
+        try:
+            subprocess.run(build_cmd, shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: Build failed with exit code {e.returncode}", file=sys.stderr)
+            sys.exit(e.returncode)
+        print("Build completed successfully.")
+
+    # Prepare the command
+    if args.interactive:
+        # Interactive mode: just run zsh
+        cmd = f"docker compose -f {compose_file} run --rm"
+        if args.interactive:
+            cmd += " -it"
+        cmd += f" {service_name} zsh -l"
+    else:
+        # Test mode: run the test script unless --no-test is specified
+        cmd = f"docker compose -f {compose_file} run --rm {service_name}"
+        if not args.no_test:
+            cmd += " zsh -l ./tests/test_error_handling.sh"
+
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except KeyboardInterrupt:
+        print("\nStopping container...")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Tests failed with exit code {e.returncode}", file=sys.stderr)
+        sys.exit(e.returncode)
+
+if __name__ == "__main__":
+    main()

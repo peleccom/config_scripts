@@ -1,12 +1,12 @@
 #!/bin/bash
 
-dir=${PWD##*/} # Get current directory name 
-image_base=${dir//_/} # remove underscores
-service_name=$1 # Service name
-docker_image_name=$image_base'_'$service_name # build docker compose image name
+# Get current container ID and image name
+container_id=$(docker ps --filter "name=$1" --format "{{.ID}}")
+if [ -z "$container_id" ]; then
+    echo "Container not found"
+    exit 1
+fi
 
-docker-compose run $service_name $2 $3 $4 $5 $6 # pass args to service
-run_container=$(docker ps -l -q) #get the last run container id
-docker commit $run_container $docker_image_name #commit the image changes
-docker rm $run_container # remove the run container
-
+# Commit changes to new image
+docker commit "$container_id" "$2"
+docker tag "$2" "$2:latest"

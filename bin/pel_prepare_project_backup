@@ -1,40 +1,12 @@
 #!/bin/bash
 
-# List of directories to remove
-DIRS_TO_REMOVE=("__pycache__" ".pytest_cache" "dist" "node_modules", ".pants.d" ".tmp" ".ruff_cache" ".angular/cache")
+# Define directories to backup
+backup_dirs=(
+    "src"
+    "docs"
+    "config"
+    "scripts"
+)
 
-# Check if folder name is passed
-if [ -z "$1" ]; then
-    echo "Usage: ./pel_prepare_project_backup <folder_name>"
-    exit 1
-fi
-
-# Navigate to the project folder
-FOLDER="$1"
-if [ ! -d "$FOLDER" ]; then
-    echo "Folder '$FOLDER' does not exist."
-    exit 1
-fi
-
-# Display folder size before cleanup
-SIZE_BEFORE=$(du -sh "$FOLDER" | cut -f1)
-echo "Size before cleanup: $SIZE_BEFORE"
-
-# Remove unnecessary directories
-for DIR in "${DIRS_TO_REMOVE[@]}"; do
-    find "$FOLDER" -type d -path "$FOLDER/$DIR" -exec rm -rf {} +
-done
-
-# Display folder size after cleanup
-SIZE_AFTER=$(du -sh "$FOLDER" | cut -f1)
-echo "Size after cleanup: $SIZE_AFTER"
-
-# Create a compressed backup
-BACKUP_NAME="${FOLDER%/}.tar.gz"
-GZIP=-9 tar -czf "$BACKUP_NAME" -C "$(dirname "$FOLDER")" "$(basename "$FOLDER")"
-
-# Display backup size
-ARCHIVE_SIZE=$(du -sh "$BACKUP_NAME" | cut -f1)
-echo "Size of archive: $ARCHIVE_SIZE"
-
-echo "Backup created: $BACKUP_NAME"
+# Create backup
+tar -czf backup.tar.gz "${backup_dirs[@]}"

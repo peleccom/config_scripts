@@ -1,5 +1,6 @@
-#!/bin/sh
-# Make ssh proxy for remote hass
-# Usage ./pel_proxy_hass.sh <SSH_HOST> <SSH_PORT>
+#!/bin/bash
 
-ssh -L 8123:localhost:8123 pi@$1 -p $2
+# Start Home Assistant proxy
+# Usage: pel_proxy_hass.sh [port]
+port="${1:-8123}"
+ssh -L "${port}:localhost:${port}" homeassistant.local

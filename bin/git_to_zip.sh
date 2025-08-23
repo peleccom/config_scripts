@@ -1,7 +1,8 @@
-#!/bin/sh
-# Make zip archive from git project HEAD state
+#!/bin/bash
 
-today=`date '+%Y_%m_%d__%H_%M_%S'`;
-cd $1
-git archive -o ../$1_$today.zip HEAD
-cd -
+# Get current branch name and sanitize it
+branch=$(git rev-parse --abbrev-ref HEAD)
+(
+    cd "$(git rev-parse --show-toplevel)" || exit 1
+    zip -r "${branch}.zip" . -x "*.git*"
+)

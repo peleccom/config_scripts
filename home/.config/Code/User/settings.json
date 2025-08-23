@@ -86,5 +86,6 @@
     "database-client.autoSync": true,
     "codeium.enableConfig": {
         "*": true
-    }
+    },
+    "docker.extension.enableComposeLanguageServer": false
 }
