@@ -12,3 +12,7 @@ kubepodimage() {
 
   kubectl get pod "$pod" -o jsonpath='{.status.containerStatuses[0].imageID}{"\n"}'
 }
+
+kal() {
+  kubectl logs -l app=$1  --all-containers --ignore-errors --max-log-requests 20 $2
+}
