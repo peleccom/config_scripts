@@ -1,4 +1,4 @@
-# If you come from bash you might have to change your $PATH.
+# If you come from bash you might have to change your $PATH
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
@@ -60,6 +60,13 @@ DEFAULT_USER=$(whoami)
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 
+zstyle ':omz:plugins:alias-finder' autoload yes # disabled by default
+zstyle ':omz:plugins:alias-finder' longer yes # disabled by default
+zstyle ':omz:plugins:alias-finder' exact yes # disabled by default
+zstyle ':omz:plugins:alias-finder' cheaper yes # disabled by default
+
+
+unsetopt completealiases
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -67,23 +74,34 @@ DEFAULT_USER=$(whoami)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  gitfast
   docker
   docker-compose
   python
   sudo
   virtualenvwrapper
-  zsh-autosuggestions
+  zsh-autosuggestions # git clone https://github.com/zsh-users/zsh-autosuggestions 
+  zsh-syntax-highlighting # git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
   jira
   ng
   # django  # Removed
   copyfile
   pip
+  poetry
+  pyenv
   npm
+  nvm
   command-not-found
   tmux
   autojump
   gcloud
+  npm
+  colored-man-pages
+  aliases
+  alias-finder
+  kubectl
+  aws
+  z
+  zsh-interactive-cd
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -153,12 +171,6 @@ if [ -d "$HOME/config_scripts/bin" ] ; then
     PATH="$HOME/config_scripts/bin:$PATH"
 fi
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '$HOME/apps/google-cloud-sdk/path.zsh.inc' ]; then source '$HOME/apps/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '$HOME/apps/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/apps/google-cloud-sdk/completion.zsh.inc'; fi
-
 # The next line enables Android SDK
 if [ -d "$HOME/Android/Sdk" ]; then
 ANDROID_HOME=$HOME/Android/Sdk
@@ -176,10 +188,11 @@ export SDKMAN_DIR="/home/alex/.sdkman"
 [[ -s "/home/alex/.sdkman/bin/sdkman-init.sh" ]] && source "/home/alex/.sdkman/bin/sdkman-init.sh"
 
 # DART
-PATH=$PATH:$HOME/snap/flutter/common/flutter/bin/cache/dart-sdk/bin
+PATH="$PATH":"$HOME/.pub-cache/bin"
 
 # ntfy integration https://github.com/dschep/ntfy	
-eval "$(ntfy shell-integration --longer-than 30)"
+eval "$(ntfy shell-integration --longer-than 180)"
+export AUTO_NTFY_DONE_IGNORE="xcircle nano vim npm xc"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -189,3 +202,96 @@ export WORKON_HOME=$HOME/.virtualenvs
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
 export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
 source /usr/local/bin/virtualenvwrapper.sh
+
+
+# pricehubble
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
+source $HOME/work/pricehubble/ph_iap_tunnel.sh
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
+export PATH="/opt/cursor:$PATH"
+plugin=(
+  pyenv
+)
+
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc' ]; then . '/home/aliaksandr/apps/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/aliaksandr/apps/google-cloud-sdk/completion.zsh.inc'; fi
+
+# pnpm
+export PNPM_HOME="/home/aliaksandr/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+# git autocomplete
+autoload -Uz compinit && compinit
+___MY_VMOPTIONS_SHELL_FILE="${HOME}/.jetbrains.vmoptions.sh"; if [ -f "${___MY_VMOPTIONS_SHELL_FILE}" ]; then . "${___MY_VMOPTIONS_SHELL_FILE}"; fi
+
+
+
+# TWO
+# Script to auto login to the GCloud CLI
+# Usage: glogin [-f] [-q]
+# -f    force login
+# -q    quiet mode
+glogin() {
+    local force=false
+    local quiet=false
+    local opt
+
+    # Parse options
+    while getopts ":fq" opt; do
+        case ${opt} in
+            f ) force=true ;;
+            q ) quiet=true ;;
+            \? ) echo "Usage: glogin [-f] [-q]" >&2
+                 return 1 ;;
+        esac
+    done
+
+    # Check whether the identity token is valid
+    if ! logged_in=$(yes | gcloud auth print-identity-token --verbosity=debug 2>&1 | grep 'POST /token .* 200'); then
+        force=true
+    fi
+
+    if [[ $force == true ]]; then
+        # User is not logged in or forced to login via -f flag
+        if [[ $quiet == false ]]; then
+            echo "Logging in to Google Cloud..."
+            gcloud auth login --update-adc
+        else
+            # Invoke login command quietly in the background
+            (gcloud auth login --update-adc >/dev/null 2>&1 &)
+        fi
+    else
+        # User is already logged in
+        if [[ $quiet == false ]]; then
+            account=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+            echo "Already logged in to Google Cloud as $account."
+        fi
+    fi
+}
+
+# The runs the script quietly in the background everytime you open a new shell (note the difference with v1 where background process was invoked at this level)
+#glogin -q
+# TWO
+kubepodimage() {
+  local prefix=$1
+  local pod=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep "^$prefix" | head -n1)
+
+  if [[ -z "$pod" ]]; then
+    echo "❌ No pod found starting with '$prefix'"
+    return 1
+  fi
+
+  kubectl get pod "$pod" -o jsonpath='{.status.containerStatuses[0].imageID}{"\n"}'
+}

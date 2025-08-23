@@ -1,0 +1,30 @@
+services:
+  test-lite:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+      target: lite
+    volumes:
+      - ..:/home/testuser/config_scripts
+    environment:
+      - INSTALL_TYPE=lite
+    command: ["zsh", "-l"]
+    working_dir: /home/testuser
+    hostname: config-test-lite
+    tty: true
+    stdin_open: true
+
+  test-full:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+      target: full
+    volumes:
+      - ..:/home/testuser/config_scripts
+    environment:
+      - INSTALL_TYPE=full
+    working_dir: /home/testuser
+    command: ["zsh", "-l"]
+    hostname: config-test-full
+    tty: true
+    stdin_open: true

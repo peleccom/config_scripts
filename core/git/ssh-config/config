@@ -1,0 +1,29 @@
+# SSH Config for Git Hosts
+# This file provides a more maintainable way to manage multiple SSH keys for different Git hosts
+
+# Default settings for all hosts
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
+    IdentitiesOnly yes
+
+# Personal GitHub account
+Host github.com-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/my/id_rsa
+    IdentitiesOnly yes
+
+# Work GitHub account
+Host github.com-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/work/id_rsa
+    IdentitiesOnly yes
+
+# Example for GitLab (commented out)
+# Host gitlab.com-personal
+#     HostName gitlab.com
+#     User git
+#     IdentityFile ~/.ssh/gitlab/id_rsa
+#     IdentitiesOnly yes

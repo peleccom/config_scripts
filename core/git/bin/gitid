@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""
+gitid - Simple Git Identity Management Tool
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+def run_command(cmd, check=True):
+    """Run a shell command and return its output"""
+    try:
+        result = subprocess.run(cmd, check=check, text=True, capture_output=True, shell=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}", file=sys.stderr)
+        if check:
+            sys.exit(1)
+        return None
+
+def get_config_dir():
+    """Get the configuration directory"""
+    return Path.home() / '.ssh'
+
+def setup_ssh_dir(path):
+    """Set up SSH directory with correct permissions"""
+    path.mkdir(parents=True, exist_ok=True)
+    path.chmod(0o700)
+
+def list_identities():
+    """List all configured Git identities"""
+    config_file = get_config_dir() / 'config'
+    if not config_file.exists():
+        print("No SSH config file found.")
+        return
+
+    print("Configured Git identities:")
+    with open(config_file) as f:
+        for line in f:
+            if line.strip().startswith('Host github.com-'):
+                host = line.strip().split()[-1]
+                print(f"- {host}")
+
+def get_current_identity():
+    """Get the current Git identity for the repository"""
+    email = run_command("git config user.email", check=False)
+    name = run_command("git config user.name", check=False)
+    if email and name:
+        print(f"Current identity: {name} <{email}>")
+        remote = run_command("git remote get-url origin", check=False)
+        if remote:
+            print(f"Remote: {remote}")
+    else:
+        print("No Git identity configured for this repository")
+
+def switch_identity(identity):
+    """Switch to a different Git identity"""
+    config_file = get_config_dir() / 'config'
+    if not config_file.exists():
+        print("Error: SSH config file not found")
+        sys.exit(1)
+
+    # Verify identity exists
+    identity_found = False
+    with open(config_file) as f:
+        for line in f:
+            if line.strip() == f"Host {identity}":
+                identity_found = True
+                break
+
+    if not identity_found:
+        print(f"Error: Identity '{identity}' not found in SSH config")
+        sys.exit(1)
+
+    # Update Git remote
+    remote = run_command("git remote get-url origin", check=False)
+    if remote:
+        if '@' in remote:
+            old_host = remote.split('@')[1].split(':')[0]
+            new_remote = remote.replace(old_host, identity)
+            run_command(f"git remote set-url origin {new_remote}")
+            print(f"Updated remote to: {new_remote}")
+
+    # Load identity-specific Git config
+    if 'personal' in identity:
+        run_command("git config user.email 'personal@email.com'")
+        run_command("git config user.name 'Personal Name'")
+    elif 'work' in identity:
+        run_command("git config user.email 'work@company.com'")
+        run_command("git config user.name 'Work Name'")
+
+    print(f"Switched to identity: {identity}")
+
+def create_identity(name, email, key_type="rsa", key_bits=4096):
+    """Create a new Git identity"""
+    identity = f"github.com-{name}"
+    key_dir = get_config_dir() / name
+    setup_ssh_dir(key_dir)
+
+    # Generate SSH key
+    key_file = key_dir / "id_rsa"
+    if not key_file.exists():
+        run_command(f"ssh-keygen -t {key_type} -b {key_bits} -f {key_file} -C '{email}' -N ''")
+
+    # Update SSH config
+    config_file = get_config_dir() / 'config'
+    config_content = f"""
+# {name.title()} GitHub
+Host {identity}
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/{name}/id_rsa
+    IdentitiesOnly yes
+"""
+    with open(config_file, 'a') as f:
+        f.write(config_content)
+
+    # Create Git config
+    git_config = Path.home() / f'.gitconfig-{name}'
+    with open(git_config, 'w') as f:
+        f.write(f"""[user]
+    name = {name.title()} Name
+    email = {email}
+[core]
+    sshCommand = "ssh -F ~/.ssh/config -i ~/.ssh/{name}/id_rsa"
+""")
+
+    print(f"""Identity '{identity}' created successfully!
+
+To use this identity:
+1. Add this public key to GitHub:
+   {key_file}.pub
+
+2. Test the connection:
+   ssh -T git@{identity}
+
+3. Switch to this identity in a repository:
+   gitid switch {identity}
+""")
+
+def main():
+    parser = argparse.ArgumentParser(description="Git Identity Management Tool")
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+
+    # List command
+    subparsers.add_parser('list', help='List configured identities')
+
+    # Current command
+    subparsers.add_parser('current', help='Show current identity')
+
+    # Switch command
+    switch_parser = subparsers.add_parser('switch', help='Switch to a different identity')
+    switch_parser.add_argument('identity', help='Identity to switch to')
+
+    # Create command
+    create_parser = subparsers.add_parser('create', help='Create a new identity')
+    create_parser.add_argument('name', help='Identity name (e.g., personal, work)')
+    create_parser.add_argument('email', help='Email address for the identity')
+    create_parser.add_argument('--key-type', default='rsa', help='SSH key type (default: rsa)')
+    create_parser.add_argument('--key-bits', type=int, default=4096, help='SSH key bits (default: 4096)')
+
+    args = parser.parse_args()
+
+    if args.command == 'list':
+        list_identities()
+    elif args.command == 'current':
+        get_current_identity()
+    elif args.command == 'switch':
+        switch_identity(args.identity)
+    elif args.command == 'create':
+        create_identity(args.name, args.email, args.key_type, args.key_bits)
+    else:
+        parser.print_help()
+
+if __name__ == '__main__':
+    main()
