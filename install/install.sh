@@ -59,6 +59,16 @@ fi
 P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 if [ ! -d "$P10K_DIR" ]; then
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+  
+  # Install Nerd Font
+  if [[ "$OS" == "macos" ]]; then
+    curl -fL https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf -o ~/Library/Fonts/DroidSansMNerdFont-Regular.otf
+  else
+    mkdir -p ~/.local/share/fonts
+    curl -fL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf -o ~/.local/share/fonts/DroidSansMNerdFont-Regular.otf
+    fc-cache -fv
+  fi
+
 else
   # Update if already exists
   cd "$P10K_DIR" && git pull --ff-only
