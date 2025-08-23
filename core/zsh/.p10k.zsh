@@ -30,14 +30,11 @@
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
   # Container segment for p10k
-  function prompt_container() {
-    [[ -z "${DOCKER_CONTAINER}" || "${DOCKER_CONTAINER}" = false ]] && return
+  function prompt_container() {    # Only show in container
+    [[ -z "${DOCKER_CONTAINER}" ]] && return
     # Debug: Print environment variable status
     echo "DOCKER_CONTAINER=${DOCKER_CONTAINER}"
     echo "CONTAINER_TYPE=${CONTAINER_TYPE}"
-
-    # Only show in container
-    [[ -z "${DOCKER_CONTAINER}" ]] && return
 
     local container_type="${CONTAINER_TYPE:-container}"
     p10k segment -b 208 -f 0 -i '🐳' -t "[${container_type}]"
