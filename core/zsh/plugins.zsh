@@ -21,8 +21,8 @@ plugins=(
   docker-compose
   python
   sudo
-  virtualenvwrapper
-  zsh-autosuggestions # git clone https://github.com/zsh-users/zsh-autosuggestions 
+  # virtualenvwrapper #crash zsh
+  zsh-autosuggestions # git clone https://github.com/zsh-users/zsh-autosuggestions
   zsh-syntax-highlighting # git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
   jira
   ng
