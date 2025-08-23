@@ -5,14 +5,15 @@ services:
       dockerfile: tests/Dockerfile
       target: lite
     volumes:
-      - ..:/home/testuser/config_scripts
+      - ..:/home/testuser/config_scripts:rw
     environment:
       - INSTALL_TYPE=lite
       - DOCKER_CONTAINER=1
-      - PATH=/home/testuser/bin:/home/testuser/config_scripts/bin:${PATH}
+      - PATH=/home/testuser/bin:/home/testuser/.local/bin:/home/testuser/config_scripts/bin:${PATH}
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true
+    user: testuser
 
   test-full:
     build:
@@ -20,11 +21,12 @@ services:
       dockerfile: tests/Dockerfile
       target: full
     volumes:
-      - ..:/home/testuser/config_scripts
+      - ..:/home/testuser/config_scripts:rw
     environment:
       - INSTALL_TYPE=full
       - DOCKER_CONTAINER=1
-      - PATH=/home/testuser/bin:/home/testuser/config_scripts/bin:${PATH}
+      - PATH=/home/testuser/bin:/home/testuser/.local/bin:/home/testuser/config_scripts/bin:${PATH}
     working_dir: /home/testuser/config_scripts
     tty: true
     stdin_open: true
+    user: testuser

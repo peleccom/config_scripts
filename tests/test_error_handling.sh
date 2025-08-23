@@ -15,7 +15,7 @@ mkdir -p "$HOME/.ssh" "$TEST_TMP_DIR/local/shell/env.d"
 chmod 700 "$HOME/.ssh"
 
 # Add bin to PATH and ensure gitid is available
-export PATH="$HOME/bin:$HOME/config_scripts/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$HOME/config_scripts/bin:$PATH"
 if [[ ! -x "$HOME/bin/gitid" ]]; then
     mkdir -p "$HOME/bin"
     cp "$HOME/config_scripts/core/git/bin/gitid" "$HOME/bin/"
@@ -101,6 +101,15 @@ run_test "Permission denied" \
 run_test "Invalid SSH key type" \
     "gitid create test test@test.com --key-type invalid" \
     1
+
+echo "Running shell script linting..."
+echo "================================"
+
+# Test 8: Shell script linting
+# Run shellcheck only on shell scripts
+run_test "Shell script linting" \
+    "for file in \$(find ./bin -type f ! -name '*.py' ! -name '*.pl' ! -path '*/.git/*' ! -path '*/\.*' ! -path '*/venv/*' ! -path '*/sunrise/*'); do if head -n1 \"\$file\" | grep -q '^#!.*\(ba\|z\)sh'; then shellcheck \"\$file\" || exit 1; fi; done" \
+    0
 
 # Print summary
 echo "================================"

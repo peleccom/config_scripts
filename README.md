@@ -123,6 +123,27 @@ pel_test_config -i --no-test
 
 # Keep container and files for debugging
 pel_test_config --keep
+
+# Force rebuild container
+pel_test_config --rebuild
+```
+
+#### Development Container
+```bash
+# Start a development container
+pel_dev_config start
+
+# Start a full development container
+pel_dev_config start --type full
+
+# Open a shell in the container
+pel_dev_config shell
+
+# Show container status
+pel_dev_config status
+
+# Clean up containers and volumes
+pel_dev_config clean
 ```
 
 #### Comprehensive Test Suite
@@ -133,11 +154,44 @@ docker compose run test-lite # Test lite installation
 docker compose run test-full # Test full installation
 ```
 
+### Running Linters Locally
+
+We use several linters to maintain code quality:
+
+1. **Python Linting**
+```bash
+# Install Python linters
+pip install pylint black
+
+# Run pylint
+find . -type f -name "*.py" -exec pylint {} +
+
+# Run black
+find . -type f -name "*.py" -exec black --check {} +
+```
+
+2. **Shell Script Linting**
+```bash
+# Install shellcheck
+sudo apt-get install shellcheck  # Ubuntu/Debian
+brew install shellcheck         # macOS
+
+# Run shellcheck
+find ./bin -type f -exec shellcheck {} +
+```
+
+3. **Run All Linters**
+```bash
+# Using test script
+pel_test_config --type lite  # Includes linting checks
+```
+
 ### Test Coverage
 - Installation validation
 - Configuration verification
 - Tool functionality
 - Security checks
+- Code style and quality
 
 ## 📚 Documentation
 

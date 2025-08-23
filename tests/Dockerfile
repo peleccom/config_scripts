@@ -1,5 +1,6 @@
 # Multi-stage build for different test environments
-FROM ubuntu:22.04 AS base
+ARG BASE_IMAGE=ubuntu:22.04
+FROM ${BASE_IMAGE} AS base
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -7,7 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SHELL=/bin/zsh \
     TERM=xterm-256color \
     LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8
+    LC_ALL=C.UTF-8 \
+    POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 # Install basic dependencies and fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     fontconfig \
+    shellcheck \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
     # Install Nerd Font
