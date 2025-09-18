@@ -5,7 +5,7 @@ A versatile command-line tool for managing multiple Git identities across differ
 ## Quick Start
 
 ```bash
-# Create a new identity (GitHub)
+# Create a new identity
 pel_gitid create personal personal@email.com
 
 # Create identity for another Git server
@@ -14,7 +14,10 @@ pel_gitid create work work@company.com --host gitlab.company.com
 # List configured identities
 pel_gitid list
 
-# Switch identity in a repository
+# Switch identity using direct name (sets up git-as integration)
+pel_gitid switch work    # Uses ~/.ssh/work/id_rsa
+
+# Switch identity using full host name
 pel_gitid switch gitlab.company.com-work
 
 # Show current identity
@@ -22,9 +25,6 @@ pel_gitid current
 
 # Apply identity configuration to current repository
 pel_gitid apply work
-
-# Set repository-specific name
-pel_gitid set-name "John Doe"
 ```
 
 ## Commands
@@ -57,15 +57,22 @@ pel_gitid list
 
 ### Switch Identity
 
-Switch to a different identity in the current repository:
+Switch to a different identity in the current repository. You can use either a direct identity name or a full host-based identity:
 
 ```bash
-pel_gitid switch <identity>
+# Using direct identity name (sets up git-as integration)
+pel_gitid switch work    # Uses ~/.ssh/work/id_rsa
+pel_gitid switch my      # Uses ~/.ssh/my/id_rsa
 
-# Examples:
-pel_gitid switch github.com-personal
+# Using full host-based identity
 pel_gitid switch gitlab.company.com-work
 ```
+
+When using direct identity names (`work` or `my`):
+- Sets up git alias for the identity (e.g., `git work` for work identity)
+- Configures git to use the correct SSH key
+- Loads identity-specific configuration if available
+- Integrates with git-as.sh for SSH key management
 
 ### Show Current Identity
 
@@ -140,6 +147,10 @@ pel_gitid set-name "Custom Name"
 
 2. Switch identity:
    ```bash
+   # Using direct identity name
+   pel_gitid switch work
+
+   # Or using full host name
    pel_gitid switch github.com-personal
    ```
 
@@ -196,66 +207,13 @@ chmod 700 ~/.ssh/*/user.sh
 
 ## Integration
 
-The `pel_gitid` tool is automatically installed during the full setup on both Linux and macOS:
+The `pel_gitid` tool is automatically installed during the full setup:
 
-### Linux Installation
 ```bash
 # Manual installation
 cp bin/pel_gitid ~/bin/
 chmod +x ~/bin/pel_gitid
 ```
-
-### macOS Installation
-```bash
-# Install dependencies
-brew install python3
-
-# Manual installation
-cp bin/pel_gitid ~/bin/
-chmod +x ~/bin/pel_gitid
-```
-
-### Command Completion
-
-The tool supports command-line completion for identity names and hosts. To enable it:
-
-1. Install argcomplete and ensure its scripts are in PATH:
-
-   On Linux:
-   ```bash
-   # Install argcomplete in user's home directory
-   pip install --user argcomplete
-
-   # Add pip scripts to PATH if not already there
-   export PATH="$HOME/.local/bin:$PATH"
-   ```
-
-   On macOS:
-   ```bash
-   # Install using Homebrew's Python
-   python3 -m pip install --user argcomplete
-
-   # Add pip scripts to PATH if not already there
-   export PATH="$HOME/.local/bin:$PATH"
-   ```
-
-2. Enable completion globally:
-
-   For user-specific installation:
-   ```bash
-   activate-global-python-argcomplete --user
-   ```
-
-   For system-wide installation:
-   ```bash
-   sudo activate-global-python-argcomplete
-   ```
-
-   This will enable completion for all Python scripts that support it.
-
-Once enabled, you can use TAB completion for:
-- Identity names with `pel_gitid apply <TAB>`
-- Host names with `pel_gitid switch <TAB>`
 
 ## Security
 

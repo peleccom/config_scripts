@@ -39,15 +39,31 @@ def setup_ssh_dir(path):
     path.mkdir(parents=True, exist_ok=True)
     path.chmod(0o700)
 
-def get_identity_names():
-    """Get list of configured identity names"""
+def get_profiles():
+    """Get list of available profiles from .ssh directory"""
     config_dir = get_config_dir()
-    identities = []
+    profiles = []
     if config_dir.exists():
         for path in config_dir.iterdir():
-            if path.is_dir() and (path / 'user.sh').exists():
-                identities.append(path.name)
-    return identities
+            # Check if directory contains both id_rsa and user.sh
+            if path.is_dir() and (path / 'id_rsa').exists() and (path / 'user.sh').exists():
+                profiles.append(path.name)
+    return sorted(profiles)
+
+def get_current_profile():
+    """Get current profile based on git config"""
+    email = run_command("git config user.email", check=False)
+    if not email:
+        return None
+    
+    # Check each profile's user.sh for matching email
+    for profile in get_profiles():
+        user_script = get_config_dir() / profile / 'user.sh'
+        if user_script.exists():
+            content = user_script.read_text()
+            if email in content:
+                return profile
+    return None
 
 def get_identity_hosts():
     """Get list of configured identity hosts"""
@@ -87,40 +103,69 @@ def get_current_identity():
     else:
         print("No Git identity configured for this repository")
 
-def switch_identity(identity):
+def apply_user_config(profile):
+    """Apply user.sh configuration from a profile"""
+    config_dir = get_config_dir()
+    user_script = config_dir / profile / 'user.sh'
+    
+    if not user_script.exists():
+        print(f"Error: user.sh not found for profile {profile}")
+        sys.exit(1)
+    
+    # Read and display the configuration
+    print(f"Applying configuration from {profile}:")
+    content = user_script.read_text()
+    for line in content.splitlines():
+        if 'git config' in line and ('user.email' in line or 'user.name' in line):
+            print(f"  {line.strip()}")
+    
+    # Apply the configuration
+    run_command(f"bash {user_script}")
+    print(f"\nConfiguration applied successfully.")
+
+def switch_identity(profile):
     """Switch to a different Git identity"""
-    config_file = get_config_dir() / 'config'
-    if not config_file.exists():
-        print("Error: SSH config file not found")
+    config_dir = get_config_dir()
+    profiles = get_profiles()
+
+    if profile not in profiles:
+        print(f"Error: Profile '{profile}' not found. Available profiles: {', '.join(profiles)}")
         sys.exit(1)
 
-    # Verify identity exists
-    identity_found = False
-    with open(config_file) as f:
-        for line in f:
-            if line.strip() == f"Host {identity}":
-                identity_found = True
-                break
-
-    if not identity_found:
-        print(f"Error: Identity '{identity}' not found in SSH config")
+    key_file = config_dir / profile / 'id_rsa'
+    if not key_file.exists():
+        print(f"Error: SSH key not found at {key_file}")
+        sys.exit(1)
+    
+    # Set up git-as integration
+    git_as_script = Path.home() / 'config_scripts/git-as.sh'
+    if not git_as_script.exists():
+        print(f"Error: git-as.sh script not found at {git_as_script}")
         sys.exit(1)
 
-    # Update Git remote
+    # Configure git alias
+    run_command(f'git config --global alias.{profile} "!{git_as_script} {key_file}"')
+    run_command('git config --global credential.helper "cache --timeout=600"')
+    
+    # Apply user configuration
+    apply_user_config(profile)
+    print(f"\nSwitched to {profile} identity using {key_file}")
+
+    # Update Git remote if it exists
     remote = run_command("git remote get-url origin", check=False)
-    if remote:
-        if '@' in remote:
-            old_host = remote.split('@')[1].split(':')[0]
-            new_remote = remote.replace(old_host, identity)
-            run_command(f"git remote set-url origin {new_remote}")
-            print(f"Updated remote to: {new_remote}")
-
-    # Load identity-specific Git config
-    identity_name = identity.split('-')[-1]  # Extract identity name from host
-    user_script = get_config_dir() / identity_name / 'user.sh'
-    if user_script.exists():
-        run_command(f"bash {user_script}")
-        print(f"Loaded user configuration from: {user_script}")
+    if remote and '@' in remote:
+        old_host = remote.split('@')[1].split(':')[0]
+        # Try to find matching host in SSH config
+        config_file = config_dir / 'config'
+        if config_file.exists():
+            with open(config_file) as f:
+                for line in f:
+                    if line.strip().startswith('Host ') and profile in line:
+                        host = line.strip().split()[-1]
+                        new_remote = remote.replace(old_host, host)
+                        run_command(f"git remote set-url origin {new_remote}")
+                        print(f"Updated remote to: {new_remote}")
+                        break
 
 def create_identity(name, email, host="github.com", key_type="rsa", key_bits=4096):
     """Create a new Git identity"""
@@ -213,32 +258,28 @@ def apply_identity(name):
     print(f"Applied configuration from identity: {name}")
     get_current_identity()
 
-def identity_completer(prefix, **kwargs):
-    """Completion function for identity names"""
-    return (i for i in get_identity_names() if i.startswith(prefix))
-
-def host_completer(prefix, **kwargs):
-    """Completion function for identity hosts"""
-    return (h for h in get_identity_hosts() if h.startswith(prefix))
+def profile_completer(prefix, **kwargs):
+    """Completion function for profile names"""
+    return (p for p in get_profiles() if p.startswith(prefix))
 
 def main():
     parser = argparse.ArgumentParser(description="Git Identity Management Tool")
     subparsers = parser.add_subparsers(dest='command', help='Command to execute')
 
     # List command
-    subparsers.add_parser('list', help='List configured identities')
+    subparsers.add_parser('list', help='List available profiles')
 
     # Current command
-    subparsers.add_parser('current', help='Show current identity')
+    subparsers.add_parser('current', help='Show current profile')
 
     # Switch command
-    switch_parser = subparsers.add_parser('switch', help='Switch to a different identity')
-    switch_parser.add_argument('identity', help='Identity to switch to').completer = host_completer
+    switch_parser = subparsers.add_parser('switch', help='Switch to a different profile')
+    switch_parser.add_argument('profile', help='Profile to switch to').completer = profile_completer
 
     # Create command
-    create_parser = subparsers.add_parser('create', help='Create a new identity')
-    create_parser.add_argument('name', help='Identity name (e.g., personal, work)')
-    create_parser.add_argument('email', help='Email address for the identity')
+    create_parser = subparsers.add_parser('create', help='Create a new profile')
+    create_parser.add_argument('name', help='Profile name')
+    create_parser.add_argument('email', help='Email address for the profile')
     create_parser.add_argument('--host', default='github.com', help='Git server hostname (default: github.com)')
     create_parser.add_argument('--key-type', default='rsa', help='SSH key type (default: rsa)')
     create_parser.add_argument('--key-bits', type=int, default=4096, help='SSH key bits (default: 4096)')
@@ -247,9 +288,9 @@ def main():
     name_parser = subparsers.add_parser('set-name', help='Set repository-specific user name')
     name_parser.add_argument('name', help='Custom name for this repository')
 
-    # Apply identity command
-    apply_parser = subparsers.add_parser('apply', help='Apply identity configuration to current repository')
-    apply_parser.add_argument('name', help='Identity name to apply (e.g., personal, work)').completer = identity_completer
+    # Set user command
+    setuser_parser = subparsers.add_parser('setuser', help='Apply user configuration from profile')
+    setuser_parser.add_argument('profile', nargs='?', help='Profile to apply (current profile if not specified)').completer = profile_completer
 
     # Enable command completion
     if 'argcomplete' in sys.modules:
@@ -258,17 +299,42 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'list':
-        list_identities()
+        profiles = get_profiles()
+        if not profiles:
+            print("No profiles found. Create one with 'pel_gitid create <name> <email>'")
+            return
+        print("Available profiles:")
+        current = get_current_profile()
+        for profile in profiles:
+            if profile == current:
+                print(f"* {profile} (current)")
+            else:
+                print(f"  {profile}")
     elif args.command == 'current':
-        get_current_identity()
+        profile = get_current_profile()
+        if profile:
+            print(f"Current profile: {profile}")
+            user_script = get_config_dir() / profile / 'user.sh'
+            if user_script.exists():
+                print("\nConfiguration:")
+                content = user_script.read_text()
+                for line in content.splitlines():
+                    if 'git config' in line and ('user.email' in line or 'user.name' in line):
+                        print(f"  {line.strip()}")
+        else:
+            print("No profile currently set")
     elif args.command == 'switch':
-        switch_identity(args.identity)
+        switch_identity(args.profile)
     elif args.command == 'create':
         create_identity(args.name, args.email, args.host, args.key_type, args.key_bits)
     elif args.command == 'set-name':
         set_repo_name(args.name)
-    elif args.command == 'apply':
-        apply_identity(args.name)
+    elif args.command == 'setuser':
+        profile = args.profile or get_current_profile()
+        if not profile:
+            print("Error: No profile specified and no current profile found")
+            sys.exit(1)
+        apply_user_config(profile)
     else:
         parser.print_help()
 

@@ -14,3 +14,4 @@ Host github.com-work
     User git
     IdentityFile ~/.ssh/id_work
     IdentitiesOnly yes
+
